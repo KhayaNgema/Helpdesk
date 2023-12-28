@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Helpdesk.Models.Product>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Products Index";
+}
+
+<h2>Products Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Product Name</th>
+                <th>Product Key</th>
+                <th>Product Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ProductKey)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ProductDescription)</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.ProductId }, new { @class = "btn btn-primary btn-sm" }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.ProductId }, new { @class = "btn btn-info btn-sm" }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.ProductId }, new { @class = "btn btn-danger btn-sm" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

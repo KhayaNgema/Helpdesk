@@ -1,0 +1,26 @@
+﻿@model Helpdesk.Models.DatabaseType
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DatabaseType</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.DatabaseName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DatabaseName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DatabaseTypeId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

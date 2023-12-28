@@ -1,0 +1,259 @@
+﻿@model Helpdesk.Models.IncidentViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="correct-sha512-value" crossorigin="anonymous" />
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Create</h2>
+
+    @using (Html.BeginForm("Create", "Incidents", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="container">
+            <h4>Incident</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.OnboardingId, "Onboarding", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("OnboardingId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.OnboardingId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProductId, "Product", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("ProductId", null, htmlAttributes: new { @class = "form-control", id = "ProductId" })
+                    @Html.ValidationMessageFor(model => model.ProductId, "", new { @class = "text-danger" })
+
+                    <!-- Other input container and input -->
+                    <div id="OtherProductContainer" class="hidden">
+                        @Html.EditorFor(model => model.ProductId, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.ProductId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CategoryId, "CategoryId", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("CategoryId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.SubCategoryId, "SubCategoryId", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("SubCategoryId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.SubCategoryId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Subject, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Subject, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Subject, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group" style="display: none;">
+                @Html.LabelFor(model => model.ReferenceNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.ReferenceNumber, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ReferenceNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.IssueFiles, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <input type="file" id="IssueFiles" name="IssueFiles" class="form-control" />
+                    @Html.ValidationMessageFor(model => model.IssueFiles, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProductVersion, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.ProductVersion, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ProductVersion, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.DatabaseTypeId, "Database Type", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("DatabaseTypeId", null, htmlAttributes: new { @class = "form-control", id = "DatabaseTypeId" })
+                    @Html.ValidationMessageFor(model => model.DatabaseTypeId, "", new { @class = "text-danger" })
+
+                    <!-- Other input container and input -->
+                    <div id="OtherDatabaseTypeContainer" class="hidden">
+                        @Html.EditorFor(model => model.DatabaseTypeId, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.DatabaseTypeId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.HardwareDescriptionId, "HardwareDescriptionId", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("HardwareDescriptionId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.HardwareDescriptionId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.EnvironmentTypeId, "EnvironmentTypeId", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("EnvironmentTypeId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.EnvironmentTypeId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.VirtualizedPlatformId, "VirtualizedPlatformId", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("VirtualizedPlatformId", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.VirtualizedPlatformId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Title, "Title", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.Title, ViewBag.TitleList as SelectList, "Select Title", htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    @Html.EditorFor(model => model.CallersName, new { htmlAttributes = new { @class = "form-control hidden" } })
+                    @Html.ValidationMessageFor(model => model.CallersName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    @Html.EditorFor(model => model.EmailAddress, new { htmlAttributes = new { @class = "form-control hidden" } })
+                    @Html.ValidationMessageFor(model => model.EmailAddress, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    @Html.EditorFor(model => model.CellNumber, new { htmlAttributes = new { @class = "form-control hidden" } })
+                    @Html.ValidationMessageFor(model => model.CellNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    @Html.DropDownList("DesignationId", null, htmlAttributes: new { @class = "form-control hidden" })
+                    @Html.ValidationMessageFor(model => model.DesignationId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    @Html.EditorFor(model => model.LoggedDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LoggedDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <div>
+        @Html.ActionLink("Back to List", "Index")
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <script>
+        $(document).ready(function () {
+            // Assuming you have a way to get the categories and subcategories
+            $("#CategoryId").change(function () {
+                var categoryId = $(this).val();
+                $.getJSON("/Incidents/GetSubCategories", { categoryId: categoryId })
+                    .done(function (data) {
+                        console.log("Subcategories:", data);
+
+                        var subcategoryDropdown = $("#SubCategoryId");
+                        subcategoryDropdown.empty();
+                        $.each(data, function (index, subcategory) {
+                            subcategoryDropdown.append($('<option>').text(subcategory.SubCategoryName).val(subcategory.SubCategoryId));
+                        });
+                    })
+                    .fail(function (jqxhr, textStatus, error) {
+                        console.error("Error fetching subcategories:", textStatus, error);
+                    });
+            });
+
+            // Assuming you have dropdowns with the IDs "OnboardingId" and "ProductId"
+            var onboardingDropdown = $("#OnboardingId");
+            var productDropdown = $("#ProductId");
+
+            // Attach an event handler to the change event of the onboarding dropdown
+            onboardingDropdown.change(function () {
+                // Get the selected onboarding ID
+                var onboardingId = $(this).val();
+
+                // Make an AJAX call to get products based on the selected onboarding ID
+                $.ajax({
+                    url: "/Incidents/GetProducts",
+                    type: "GET",
+                    data: { onboardingId: onboardingId },
+                    success: function (data) {
+                        console.log("Products:", data);
+
+                        // Clear existing options in the products dropdown
+                        productDropdown.empty();
+
+                        // Populate the products dropdown with the returned data
+                        $.each(data, function (index, item) {
+                            productDropdown.append($("<option>").val(item.ProductId).text(item.ProductName));
+                        });
+                    },
+                    error: function (jqxhr, textStatus, error) {
+                        console.error("Error fetching products:", textStatus, error);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+﻿
+@model Helpdesk.Models.RegisterXETViewModel
+@{
+    ViewBag.Title = "Register";
+}
+
+<main aria-labelledby="title">
+    <h2 id="title">@ViewBag.Title.</h2>
+
+    @if (ViewBag.DebugMessage != null)
+    {
+        <div class="alert alert-info">
+            @ViewBag.DebugMessage
+        </div>
+    }
+
+    @using (Html.BeginForm("RegisterXET", "Account", FormMethod.Post, new { role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <h4>Create a new account.</h4>
+        <hr />
+        <br />
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, "Title", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Title, ViewBag.TitleList as SelectList, "Select Title", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <br />
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="row">
+            @Html.LabelFor(m => m.FirstName, new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            @Html.LabelFor(m => m.LastName, new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            @Html.LabelFor(m => m.CellNumber, new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.CellNumber, new { @class = "form-control" })
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            @Html.LabelFor(m => m.Email, new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            </div>
+        </div>
+        <br />
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DesignationId, "DesignationId", htmlAttributes: new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.DesignationId, ViewBag.DesignationId as SelectList, "---Select Designation---", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.DesignationId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <br />
+        <div class="form-group col-md-6">
+            <div class="col-md-10 input-group">
+                <span class="input-group-text material-symbols-outlined">Role</span>
+                @Html.DropDownListFor(m => m.Role, ViewBag.Roles as SelectList, "---Select Role---", new { @class = "form-control" })
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="offset-md-2 col-md-10">
+                <input type="submit" value="Register" class="btn btn-outline-dark" />
+            </div>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

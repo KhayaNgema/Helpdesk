@@ -1,0 +1,162 @@
+﻿@model Helpdesk.Models.ApprovedRequest
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ApprovedRequest</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Countries.CountryName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Countries.CountryName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ClientName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ClientName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TitleId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TitleId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PhoneNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DesignationId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DesignationId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployeeOfficeAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmployeeOfficeAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OfficeAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OfficeAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmailAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmailAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PostalCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PostalCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PeriodFrom)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PeriodFrom)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PeriodTo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PeriodTo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OpretaionalHoursOpen)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OpretaionalHoursOpen)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OpretationalHourseClose)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OpretationalHourseClose)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ClientAbbr)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ClientAbbr)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.OnboardingId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

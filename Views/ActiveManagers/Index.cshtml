@@ -1,0 +1,120 @@
+﻿@model IEnumerable<Helpdesk.Models.ActiveManager>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered" style="width: 100%; table-layout: fixed;">
+        <thead style="background-color: #f2f2f2;">
+            <tr>
+                <th style="width: 20%;">Priority</th>
+                <th style="width: 20%;">Ticket No.</th>
+                <th style="width: 20%;">Client Name</th>
+                <th style="width: 20%;">Product Name</th>
+                <th style="width: 20%;">Subject</th>
+                <th style="width: 20%;">Category</th>
+                <th style="width: 20%;">Sub-category</th>
+                <th style="width: 20%;">Issue Description</th>
+                <th style="width: 20%;">Supporting File</th>
+                <th style="width: 20%;">Product Version</th>
+                <th style="width: 20%;">Database Type</th>
+                <th style="width: 20%;">Hardware Description</th>
+                <th style="width: 20%;">Environment Type</th>
+                <th style="width: 20%;">Virtualized Platform</th>
+                <th style="width: 20%;">Title</th>
+                <th style="width: 20%;">Caller's Name</th>
+                <th style="width: 20%;">Email Address</th>
+                <th style="width: 20%;">Contact Number</th>
+                <th style="width: 20%;">Designation</th>
+                <th style="width: 20%;">Date Logged</th>
+                <th style="width: 20%;">Status</th>
+                <th style="width: 20%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.SubCategories.Priority.PriorityName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ReferenceNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ApprovedRequest.ClientName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Products.ProductName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Subject)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Category.CategoryName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.SubCategories.SubCategoryName)</td>
+                    <td style="word-wrap: break-word;">@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>
+                        @{
+                            var isImage = IsImageFile(item.IssueFile);
+                            var isVideo = IsVideoFile(item.IssueFile);
+                            var isAudio = IsAudioFile(item.IssueFile);
+                        }
+
+                        @if (isImage)
+                        {
+                            <img src="@Url.Content(item.IssueFile)" alt="No file uploaded" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" />
+                        }
+                        else if (isVideo)
+                        {
+                            <video width="320" height="240" controls>
+                                <source src="@Url.Content(item.IssueFile)" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        }
+                        else if (isAudio)
+                        {
+                            <audio controls>
+                                <source src="@Url.Content(item.IssueFile)" type="audio/mp3">
+                                Your browser does not support the audio tag.
+                            </audio>
+                        }
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.ProductVersion)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DatabaseType.DatabaseName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.HardwareDescription.HardwareDescriptionName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.EnvironmentType.EnvironmentName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.VirtualizedPlatforms.VirtualizedPlatformName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CallersName) @Html.DisplayFor(modelItem => item.CallersSurname)</td>
+                    <td>@Html.DisplayFor(modelItem => item.EmailAddress)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CellNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Designation.DesignationName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.LoggedDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.TicketStatus)</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.IncidentId }, new { @class = "btn btn-primary btn-sm" }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.IncidentId }, new { @class = "btn btn-info btn-sm" }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.IncidentId }, new { @class = "btn btn-danger btn-sm" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    private bool IsImageFile(string fileName)
+    {
+        string extension = Path.GetExtension(fileName)?.ToLower();
+        return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif";
+    }
+
+    private bool IsVideoFile(string fileName)
+    {
+        string extension = Path.GetExtension(fileName)?.ToLower();
+        return extension == ".mp4" || extension == ".avi" || extension == ".mkv" || extension == ".mov";
+    }
+
+    private bool IsAudioFile(string fileName)
+    {
+        string extension = Path.GetExtension(fileName)?.ToLower();
+        return extension == ".mp3" || extension == ".wav" || extension == ".ogg";
+    }
+}

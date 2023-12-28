@@ -1,0 +1,184 @@
+﻿@model Helpdesk.Models.SecondLineSupport
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>SecondLineSupport</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ApprovedRequest.ClientName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ApprovedRequest.ClientName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Category.CategoryName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Category.CategoryName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DatabaseType.DatabaseName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DatabaseType.DatabaseName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Designation.DesignationName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Designation.DesignationName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EnvironmentType.EnvironmentName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EnvironmentType.EnvironmentName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.HardwareDescription.HardwareDescriptionName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.HardwareDescription.HardwareDescriptionName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Products.ProductName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Products.ProductName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SubCategories.faultCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SubCategories.faultCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Title.TitleName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title.TitleName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VirtualizedPlatforms.VirtualizedPlatformName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VirtualizedPlatforms.VirtualizedPlatformName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Subject)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Subject)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IssueFile)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IssueFile)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProductVersion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProductVersion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CallersName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CallersName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CallersSurname)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CallersSurname)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmailAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmailAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CellNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CellNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LoggedDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LoggedDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TicketStatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TicketStatus)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

@@ -1,0 +1,26 @@
+﻿@model Helpdesk.Models.SLAValue
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>SLAValue</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.SLAValueName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SLAValueName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.SLAValueId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

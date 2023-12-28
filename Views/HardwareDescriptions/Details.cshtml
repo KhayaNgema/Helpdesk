@@ -1,0 +1,26 @@
+﻿@model Helpdesk.Models.HardwareDescription
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>HardwareDescription</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.HardwareDescriptionName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.HardwareDescriptionName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.HardwareDescriptionId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,50 @@
+﻿@model Helpdesk.Models.SubCategory
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>SubCategory</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Priority.PriorityName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Priority.PriorityName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SLAValue.SLAValueName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SLAValue.SLAValueName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.faultCode)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.faultCode)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SubCategoryName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SubCategoryName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.SubCategoryId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

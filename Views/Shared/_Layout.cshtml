@@ -1,0 +1,658 @@
+﻿@using Microsoft.AspNet.Identity
+@inherits System.Web.Mvc.WebViewPage
+@using System.Security.Claims
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          integrity="sha512-qMP5b8tNkUV+Q8lIp2b1/6b92H4fs6aO8U5JBy+YIqG8Fe5TrsuNRBi5XW5AHXeJ6ai7HjRMszKDRVV4U8RSVg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-ABCDEF..." crossorigin="anonymous" />
+
+
+    <style>
+        body {
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        #wrapper {
+            display: flex;
+             
+        }
+
+        #sidebar-wrapper {
+            position: fixed;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            left: 0;
+            width: 0;
+            height: 93vh;
+            background: #040720;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: width 0.4s ease;
+            overflow-y: hidden;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+            border-top-right-radius: 0px; /* Add border radius to the top-right corner */
+            border-bottom-right-radius: 0px; /* Add border radius to the bottom-right corner */
+            border-top-left-radius: 5px; /* Add border radius to the top-right corner */
+            border-bottom-left-radius: 5px; /* Add border radius to the bottom-right corner */
+        }
+
+
+        #wrapper.toggled #sidebar-wrapper {
+            width: 250px;
+        }
+
+        #page-content-wrapper {
+            width: 100%;
+             transition: margin-left 0.4s ease, padding-left 0.4s ease; /* Add transition for both margin-left and padding-left */
+            margin-left: 0;
+            padding-right: 0;
+        }
+
+            #page-content-wrapper.shifted {
+                margin-left: 0px; /* Adjust the margin-left value to the width of your sidebar */
+                padding-left: 240px; /* Add some padding on the left side */
+            }
+
+        #wrapper.toggled #page-content-wrapper {
+            margin-left: 100px;
+        }
+
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1001;
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-right: 0;
+            height: 8vh;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+            .user-profile img {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+        .main-content {
+            margin-top: 0;
+            padding: 20px;
+        }
+
+        .sub-nav {
+            display: none;
+            margin-left: 20px;
+            padding-top: 10px;
+        }
+
+            .sub-nav li {
+                margin-bottom: 10px;
+            }
+
+
+        .sub-nav-master {
+            display: none;
+            margin-left: 20px;
+            padding-top: 10px;
+        }
+
+            .sub-nav-master li {
+                margin-bottom: 10px;
+            }
+
+        .sub-nav-client {
+            display: none;
+            margin-left: 20px;
+            padding-top: 10px;
+        }
+
+            .sub-nav-client li {
+                margin-bottom: 10px;
+            }
+
+        #sidebar-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar-wrapper::-webkit-scrollbar-thumb {
+            background-color: transparent;
+        }
+
+        /* Add any other styles you had here */
+    </style>
+
+
+
+
+    @RenderSection("Styles", required: false)
+</head>
+
+<body>
+
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div id="wrapper">
+
+            <div id="sidebar-wrapper" overflow-y: auto; scrollbar-width: thin; scrollbar-color: transparent transparent;">
+                <div id="loading-spinner" style="display: none; text-align: center; margin-top: 20px;">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                </div>
+                <ul class="sidebar-nav" style="list-style: none; padding: 0;">
+
+
+                    @if (User.IsInRole("First Line Support"))
+                    {
+                        <ul>
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-home fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-user fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Profile", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-ticket-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Log Incident", "Create", "Incidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-history fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Previous Incidents", "Index", "FirstLineSupports", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-exclamation-triangle fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Unresolved Incidents", "Index", "UnresolvedIncidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-chart-bar fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Access reports", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-sign-out-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                                }
+                            </li>
+                        </ul>
+
+                    }
+                    else if (User.IsInRole("Second Line Support"))
+                    {
+                        <ul>
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-home fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-user fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Profile", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-ticket-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Log Incident", "Create", "Incidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-history fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Previous Incidents", "Index", "SecondLineSupports", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-exclamation-triangle fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Unresolved Incidents", "Index", "UnresolvedIncidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-chart-bar fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Access reports", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-sign-out-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                                }
+                            </li>
+                        </ul>
+
+                    }
+                    else if (User.IsInRole("Third Line Support"))
+                    {
+                        <ul>
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-home fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-user fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Profile", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-ticket-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Log Incident", "Create", "Incidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-history fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Previous Incidents", "Index", "ThirdLineSupports", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-exclamation-triangle fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Unresolved Incidents", "Index", "UnresolvedIncidents", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-chart-bar fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Access reports", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-sign-out-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                                }
+                            </li>
+                        </ul>
+
+                    }
+                    else if (User.IsInRole("Active Manager"))
+                    {
+
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-sign-out-alt" style="color: white; margin-right: 5px;"></i>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                            }
+                        </li>
+                    }
+                    else if (User.IsInRole("Inactive Manager"))
+                    {
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-sign-out-alt" style="color: white; margin-right: 5px;"></i>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                            }
+                        </li>
+
+                    }
+                    else if (User.IsInRole("Client Admin"))
+                    {
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Profile", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Log Incident", "Create", "Incidents", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Previous Incidents", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Unresolved Incidents", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                            @Html.ActionLink("Help", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                        </li>
+                        <li style="margin-top: 20px; margin-left: 30px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                            <i class="fa fa-sign-out-alt" style="color: white; margin-right: 5px;"></i>
+                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                            }
+                        </li>
+
+                    }
+                    else if (User.IsInRole("Administrator"))
+                    {
+                        <ul>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-home fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-user fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Profile", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-building fa-lg" style="color: white; margin-right: 5px;"></i>
+                                <a id="client-link" class="nav-link text-light">Manage Clients</a>
+                            </li>
+                            <ul class="sub-nav-client">
+                                <li>
+                                    @Html.ActionLink("Onboarding requests", "Index", "ClientOnboardings", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                                <li>
+                                    @Html.ActionLink("XET Clients(Approved Clients)", "Index", "ApprovedRequests", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Declined Requests", "Index", "DeclinedRequests", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                            </ul>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-cubes fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Manage Products", "Index", "Products", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-users fa-lg" style="color: white; margin-right: 5px;"></i>
+                                <a id="users-link" class="nav-link text-light">Manage Users</a>
+                            </li>
+                            <ul class="sub-nav">
+                                <li>
+                                    @Html.ActionLink("XET Employees", "XETEmployees", "Account", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Client Admins", "ClientsPrimaryContacts", "Account", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                            </ul>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-list fa-lg" style="color: white; margin-right: 5px;"></i>
+                                <a id="master-link" class="nav-link text-light">Master Data</a>
+                            </li>
+                            <ul class="sub-nav-master">
+                                <li>
+                                    @Html.ActionLink("Services Categories", "Index", "Categories", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Sub Categories", "Index", "SubCategories", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Service Level Agreement(SLA)", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                                </li>
+                            </ul>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-chart-bar fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @Html.ActionLink("Access Reports", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                            </li>
+
+
+                            <li style="margin-top: 20px; margin-left: 10px; margin-bottom: 50px; display: flex; align-items: center; list-style-type: none;">
+                                <i class="fa fa-sign-out-alt fa-lg" style="color: white; margin-right: 5px;"></i>
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <a class="nav-link text-light" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                                }
+                            </li>
+                        </ul>
+
+                    }
+
+
+                </ul>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="wrapper">
+
+            <div id="sidebar-wrapper" overflow-y: auto; scrollbar-width: thin; scrollbar-color: transparent transparent;">
+                <div id="loading-spinner" style="display: none; text-align: center; margin-top: 20px;">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                </div>
+                <ul class="sidebar-nav" style="list-style: none; padding: 0;">
+                    <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                        <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                        @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                    </li>
+                    <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                        <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                        @Html.ActionLink("Login", "Login", "Account", new { area = "" }, new { @class = "nav-link text-light" })
+                    </li>
+                    <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                        <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                        @Html.ActionLink("Register", "Create", "ClientOnboardings", new { area = "" }, new { @class = "nav-link text-light" })
+                    </li>
+                    <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                        <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                        @Html.ActionLink("Contact Us", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                    </li>
+                    <li style="margin-top: 20px; margin-left: 30px; display: flex; align-items: center; list-style-type: none;">
+                        <i class="fa fa-home" style="color: white; margin-right: 5px;"></i> <!-- Replace "fa-home" with the appropriate Font Awesome class for your home icon -->
+                        @Html.ActionLink("About Us", "Index", "Home", new { area = "" }, new { @class = "nav-link text-light" })
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
+
+
+
+
+
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="main-content">
+        <div class="container-fluid">
+            @if (User.Identity.IsAuthenticated && ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier)?.Value != null)
+            {
+                <div class="top-navbar" style="margin-right: 20px;">
+                    <a href="#menu-toggle" id="menu-toggle" style="font-size: 26px; color: black; text-decoration: none;">&#9776;</a>
+
+
+                    <div class="user-profile">
+                        @{
+                            var userRoles = ((ClaimsIdentity)User.Identity).Claims
+                                                .Where(c => c.Type == ClaimTypes.Role)
+                                                .Select(c => c.Value)
+                                                .ToList();
+                            var userRole = userRoles.FirstOrDefault();
+                        }
+
+                        <span>@($"{GetUserFullName()} ({userRole ?? "Other Role"})")</span>
+                    </div>
+                </div>
+
+
+            }
+            else
+            {
+        <div class="top-navbar">
+            <a href="#menu-toggle" id="menu-toggle" style="font-size: 26px; color: black; text-decoration: none;">&#9776;</a>
+
+        </div>
+
+            }
+            <div class="container body-content">
+                <div class="container">
+                    @RenderBody()
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#menu-toggle").click(function (e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+                $("#page-content-wrapper").toggleClass("shifted");
+            });
+
+            $('#users-link').click(function () {
+                $('.sub-nav').toggle();
+            });
+
+            $('#master-link').click(function () {
+                $('.sub-nav-master').toggle();
+            });
+
+            $('#client-link').click(function () {
+                $('.sub-nav-client').toggle();
+            });
+        });
+    </script>
+
+
+
+
+
+
+    @functions {
+        // Helper function to get the user's full name
+        string GetUserFullName()
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+
+            // Check if the claimsIdentity is not null and has the custom FullName claim
+            if (claimsIdentity != null && claimsIdentity.HasClaim(c => c.Type == "FullName"))
+            {
+                // Get the custom FullName claim value
+                var customNameClaim = claimsIdentity.FindFirst(c => c.Type == "FullName");
+
+                // If the custom FullName claim is present and has a value
+                if (customNameClaim != null && !string.IsNullOrWhiteSpace(customNameClaim.Value))
+                {
+                    return customNameClaim.Value;
+                }
+            }
+
+            // If the custom FullName claim is not found or has no value, fallback to the original User.Identity.Name
+            return User.Identity.Name;
+        }
+    }
+</body>
+
+</html>
