@@ -18,7 +18,7 @@ namespace Helpdesk.Hangfire
         private readonly ApplicationDbContext db;
         private readonly ApplicationUserManager userManager;
 
-        // Parameterized constructor
+
         public BackgroundJobs(ApplicationDbContext dbContext, ApplicationUserManager userManager)
         {
             db = dbContext;
@@ -43,7 +43,8 @@ namespace Helpdesk.Hangfire
             this.userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(db));
         }
 
-        // Rest of your class
+
+
 
         public void AutoEscalateIncidents()
         {
@@ -52,22 +53,26 @@ namespace Helpdesk.Hangfire
             {
                 try
                 {
-                    // Get all open incidents in the FirstLineSupport table
                     var openFirstLineIncidents = db.FirstLineSupports
-                        .Where(i => i.TicketStatus == TicketStatus.Open)
+                        .Where(i => i.TicketStatus == TicketStatus.Open || i.TicketStatus == TicketStatus.Pending)
+                        .ToList();
+
+                    var openSecondLineIncidents = db.SecondLineSupports
+                        .Where(i => i.TicketStatus == TicketStatus.Open || i.TicketStatus == TicketStatus.Pending)
+                        .ToList();
+
+                    var openThirdLineIncidents = db.ThirdLineSupports
+                        .Where(i => i.TicketStatus == TicketStatus.Open || i.TicketStatus == TicketStatus.Pending)
                         .ToList();
 
                     foreach (var firstLineIncident in openFirstLineIncidents)
                     {
-                        // Get the associated subcategory to check SLA
+                        // Process first-line incidents
                         var subcategory = db.SubCategories.Find(firstLineIncident.SubCategoryId);
 
-                        // Check if SLA is reached or exceeded at the time of querying
                         if (IsSLAExceeded(firstLineIncident.LoggedDate, subcategory.SLAValue.SLAValueName))
                         {
-                            // Enqueue a Hangfire job to send escalation notification
-                            BackgroundJob.Enqueue(() => SendEscalationNotificationToFirstLineSupportWrapper(firstLineIncident));
-
+                            SendEscalationNotificationToFirstLineSupportWrapper(firstLineIncident);
 
                             var secondLineSupport = new SecondLineSupport
                             {
@@ -94,30 +99,88 @@ namespace Helpdesk.Hangfire
 
                             db.SecondLineSupports.Add(secondLineSupport);
                             db.FirstLineSupports.Remove(firstLineIncident);
-                            try
-                            {
-                                // Save changes to the database
-                                db.SaveChanges();
-                                transaction.Commit();
-                            }
-                            catch (DbUpdateConcurrencyException ex)
-                            {
-                                // Handle concurrency conflict
-                                foreach (var entry in ex.Entries)
-                                {
-                                    if (entry.State == EntityState.Modified)
-                                    {
-                                        // Reload the entity from the database
-                                        entry.Reload();
-                                    }
-                                }
-                                // Retry the update or handle accordingly
-                                // ...
-                            }
-
-                            // ... (rest of your code)
+                            db.SaveChanges(); // Commit changes for the current incident
                         }
                     }
+
+                    foreach (var secondLineIncident in openSecondLineIncidents)
+                    {
+                        // Process second-line incidents
+                        var subcategory = db.SubCategories.Find(secondLineIncident.SubCategoryId);
+
+                        if (IsSLAExceeded(secondLineIncident.LoggedDate, subcategory.SLAValue.SLAValueName))
+                        {
+                            SendEscalationNotificationToSecondLineSupportWrapper(secondLineIncident);
+
+                            var thirdLineSupport = new ThirdLineSupport
+                            {
+                                ReferenceNumber = secondLineIncident.ReferenceNumber,
+                                OnboardingId = secondLineIncident.OnboardingId,
+                                ProductId = secondLineIncident.ProductId,
+                                CategoryId = secondLineIncident.CategoryId,
+                                SubCategoryId = secondLineIncident.SubCategoryId,
+                                Subject = secondLineIncident.Subject,
+                                Description = secondLineIncident.Description,
+                                ProductVersion = secondLineIncident.ProductVersion,
+                                DatabaseTypeId = secondLineIncident.DatabaseTypeId,
+                                HardwareDescriptionId = secondLineIncident.HardwareDescriptionId,
+                                EnvironmentTypeId = secondLineIncident.EnvironmentTypeId,
+                                VirtualizedPlatformId = secondLineIncident.VirtualizedPlatformId,
+                                Title = secondLineIncident.Title,
+                                CallersName = secondLineIncident.CallersName,
+                                CallersSurname = secondLineIncident.CallersSurname,
+                                EmailAddress = secondLineIncident.EmailAddress,
+                                CellNumber = secondLineIncident.CellNumber,
+                                DesignationId = secondLineIncident.DesignationId,
+                                LoggedDate = secondLineIncident.LoggedDate,
+                            };
+
+                            db.ThirdLineSupports.Add(thirdLineSupport);
+                            db.SecondLineSupports.Remove(secondLineIncident);
+                            db.SaveChanges(); // Commit changes for the current incident
+                        }
+                    }
+
+                    foreach (var thirdLineIncident in openThirdLineIncidents)
+                    {
+                        // Process third-line incidents
+                        var subcategory = db.SubCategories.Find(thirdLineIncident.SubCategoryId);
+
+                        if (IsSLAExceeded(thirdLineIncident.LoggedDate, subcategory.SLAValue.SLAValueName))
+                        {
+                            SendEscalationNotificationToThirdLineSupportWrapper(thirdLineIncident);
+
+                            var activManager = new ActiveManager
+                            {
+                                ReferenceNumber = thirdLineIncident.ReferenceNumber,
+                                OnboardingId = thirdLineIncident.OnboardingId,
+                                ProductId = thirdLineIncident.ProductId,
+                                CategoryId = thirdLineIncident.CategoryId,
+                                SubCategoryId = thirdLineIncident.SubCategoryId,
+                                Subject = thirdLineIncident.Subject,
+                                Description = thirdLineIncident.Description,
+                                ProductVersion = thirdLineIncident.ProductVersion,
+                                DatabaseTypeId = thirdLineIncident.DatabaseTypeId,
+                                HardwareDescriptionId = thirdLineIncident.HardwareDescriptionId,
+                                EnvironmentTypeId = thirdLineIncident.EnvironmentTypeId,
+                                VirtualizedPlatformId = thirdLineIncident.VirtualizedPlatformId,
+                                Title = thirdLineIncident.Title,
+                                CallersName = thirdLineIncident.CallersName,
+                                CallersSurname = thirdLineIncident.CallersSurname,
+                                EmailAddress = thirdLineIncident.EmailAddress,
+                                CellNumber = thirdLineIncident.CellNumber,
+                                DesignationId = thirdLineIncident.DesignationId,
+                                LoggedDate = thirdLineIncident.LoggedDate,
+                            };
+
+                            db.ActiveManagers.Add(activManager);
+                            db.ThirdLineSupports.Remove(thirdLineIncident);
+                            db.SaveChanges(); // Commit changes for the current incident
+                        }
+                    }
+
+                    // Commit the transaction after processing all incidents
+                    transaction.Commit();
                 }
                 catch (Exception)
                 {
@@ -127,6 +190,7 @@ namespace Helpdesk.Hangfire
                 }
             }
         }
+
 
         private bool IsSLAExceeded(DateTime loggedDate, string slaValueName)
         {
@@ -170,6 +234,9 @@ namespace Helpdesk.Hangfire
                 case "120":
                     slaHours = 120;
                     break;
+                case "144":
+                    slaHours = 144;
+                    break;
                 default:
                     slaHours = 0; // Default to 0 if no match found
                     break;
@@ -182,46 +249,52 @@ namespace Helpdesk.Hangfire
         {
             try
             {
-                // Set your SMTP server details
                 var smtpClient = new SmtpClient
                 {
-                    Host = "smtp.gmail.com", // Replace with your SMTP server address
-                    Port = 587, // Replace with your SMTP server port
-                    Credentials = new NetworkCredential("khayalethu.ngema@xetgroup.com", "Ngema@12"), // Replace with your email credentials
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    Credentials = new NetworkCredential("khayalethu.ngema@xetgroup.com", "Ngema@12"),
                     EnableSsl = true,
                 };
 
-                // Set the sender's email address
                 var fromAddress = new MailAddress("khayalethu.ngema@xetgroup.com", "XET Helpdesk System");
 
-                // Fetch the "First Line Support" role
                 var firstLineSupportRole = db.Roles.SingleOrDefault(r => r.Name == "First Line Support");
+                var secondLineSupportRole = db.Roles.SingleOrDefault(r => r.Name == "Second Line Support");
 
-                if (firstLineSupportRole != null)
+                if (firstLineSupportRole != null && secondLineSupportRole != null)
                 {
-                    // Fetch users in the "First Line Support" role
                     var firstLineSupportAgents = db.Users
                         .Where(u => u.Roles.Any(r => r.RoleId == firstLineSupportRole.Id))
                         .ToList();
 
-                    foreach (var firstLineAgent in firstLineSupportAgents)
-                    {
-                        // Set the recipient's email address
-                        var toAddress = new MailAddress(firstLineAgent.Email, $"{firstLineAgent.FirstName} {firstLineAgent.LastName}");
+                    var secondLineSupportAgents = db.Users
+                        .Where(u => u.Roles.Any(r => r.RoleId == secondLineSupportRole.Id))
+                        .ToList();
 
-                        // Create the email message
+                    var allSupportAgents = firstLineSupportAgents.Concat(secondLineSupportAgents).Distinct().ToList();
+
+                    foreach (var supportAgent in allSupportAgents)
+                    {
+                        var toAddress = new MailAddress(supportAgent.Email, $"{supportAgent.FirstName} {supportAgent.LastName}");
+
                         var message = new MailMessage(fromAddress, toAddress)
                         {
                             Subject = "Incident Escalation Attention Required",
-                            Body = $"Attention!\n\n" +
-                                   $"The incident with Reference Number: {firstLineIncident.ReferenceNumber} " +
-                                   $"has been escalated from FirstLine Support to Second line support\n\n" +
+                            Body = $"Good day,\n\n" +
+                                   $"Dear {supportAgent.FirstName} {supportAgent.LastName}\n\n" +
+                                   $"Please note that the incident with the following details has been escalated " +
+                                   $"from first line support to second line support:\n\n" +
+                                   $"Ticket No.      : {firstLineIncident.ReferenceNumber}\n" +
+                                   $"Client          : {firstLineIncident.ApprovedRequest.ClientName}\n" +
+                                   $"Priority        : {firstLineIncident.SubCategories.Priority.PriorityName}\n" +
+                                   $"Logged date     : {firstLineIncident.LoggedDate}\n" +
+                                   $"Status          : {firstLineIncident.TicketStatus}\n\n" +
                                    $"Kind Regards\n" +
-                                   $"XET Helpdesk System",
-                            IsBodyHtml = false // Set to true if your email body is in HTML format
+                                   $"XET Helpdesk",
+                            IsBodyHtml = false
                         };
 
-                        // Send the email using the centralized method
                         SendEmail(toAddress.Address, message.Subject, message.Body);
                     }
                 }
@@ -236,6 +309,136 @@ namespace Helpdesk.Hangfire
                 throw;
             }
         }
+
+
+
+        private void SendEscalationNotificationToSecondLineSupport(SecondLineSupport secondLineIncident)
+        {
+            try
+            {
+                var smtpClient = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    Credentials = new NetworkCredential("khayalethu.ngema@xetgroup.com", "Ngema@12"),
+                    EnableSsl = true,
+                };
+
+                var fromAddress = new MailAddress("khayalethu.ngema@xetgroup.com", "XET Helpdesk System");
+
+                var secondLineSupportRole = db.Roles.SingleOrDefault(r => r.Name == "Second Line Support");
+                var thirdLineSupportRole = db.Roles.SingleOrDefault(r => r.Name == "Third Line Support");
+
+                if (secondLineSupportRole != null && thirdLineSupportRole != null)
+                {
+                    var secondLineSupportAgents = db.Users
+                        .Where(u => u.Roles.Any(r => r.RoleId == secondLineSupportRole.Id))
+                        .ToList();
+
+                    var thirdLineSupportAgents = db.Users
+                        .Where(u => u.Roles.Any(r => r.RoleId == thirdLineSupportRole.Id))
+                        .ToList();
+
+                    var allSupportAgents = secondLineSupportAgents.Concat(thirdLineSupportAgents).Distinct().ToList();
+
+                    foreach (var supportAgent in allSupportAgents)
+                    {
+                        var toAddress = new MailAddress(supportAgent.Email, $"{supportAgent.FirstName} {supportAgent.LastName}");
+
+                        var message = new MailMessage(fromAddress, toAddress)
+                        {
+                            Subject = "Incident Escalation Attention Required",
+                            Body = $"Good day,\n\n" +
+                                   $"Dear {supportAgent.FirstName} {supportAgent.LastName}\n\n" +
+                                   $"Please note that the incident with the following details has been escalated " +
+                                   $"from second line support to third line support:\n\n" +
+                                   $"Ticket No.     : {secondLineIncident.ReferenceNumber}\n" +
+                                   $"Client          : {secondLineIncident.ApprovedRequest.ClientName}\n" +
+                                   $"Priority        : {secondLineIncident.SubCategories.Priority.PriorityName}\n" +
+                                   $"Logged date     : {secondLineIncident.LoggedDate}\n" +
+                                   $"Status          : {secondLineIncident.TicketStatus}\n\n" +
+                                   $"Kind Regards\n" +
+                                   $"XET Helpdesk",
+                            IsBodyHtml = false
+                        };
+
+                        SendEmail(toAddress.Address, message.Subject, message.Body);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Second Line Support role not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending escalation notification: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        private void SendEscalationNotificationToThirdLineSupport(ThirdLineSupport thirdLineIncident)
+        {
+            try
+            {
+                var smtpClient = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    Credentials = new NetworkCredential("khayalethu.ngema@xetgroup.com", "Ngema@12"),
+                    EnableSsl = true,
+                };
+
+                var fromAddress = new MailAddress("khayalethu.ngema@xetgroup.com", "XET Helpdesk System");
+
+                var thirdLineSupportRole = db.Roles.SingleOrDefault(r => r.Name == "Third Line Support");
+                var activeManagerRole = db.Roles.SingleOrDefault(r => r.Name == "Active Manager");
+
+                if (thirdLineSupportRole != null && activeManagerRole != null)
+                {
+                    var thirdLineSupportAgents = db.Users
+                        .Where(u => u.Roles.Any(r => r.RoleId == thirdLineSupportRole.Id || r.RoleId == activeManagerRole.Id))
+                        .ToList();
+
+                    foreach (var supportAgent in thirdLineSupportAgents)
+                    {
+                        var toAddress = new MailAddress(supportAgent.Email, $"{supportAgent.FirstName} {supportAgent.LastName}");
+
+                        var message = new MailMessage(fromAddress, toAddress)
+                        {
+                            Subject = "Incident Escalation Attention Required",
+                            Body = $"Good day,\n\n" +
+                                   $"Dear {supportAgent.FirstName} {supportAgent.LastName}\n\n" +
+                                   $"Please note that the incident with the following details has been escalated" +
+                                   $"from third line support:\n\n " +
+                                   $"Ticket No.      : {thirdLineIncident.ReferenceNumber}\n " +
+                                   $"Client          : {thirdLineIncident.ApprovedRequest.ClientName}\n" +
+                                   $"Priority        : {thirdLineIncident.SubCategories.Priority.PriorityName}\n" +
+                                   $"Logged date     : {thirdLineIncident.LoggedDate}\n" +
+                                   $"Status          : {thirdLineIncident.TicketStatus}\n\n" +
+                                   $"Kind Regards\n" +
+                                   $"XET Helpdesk",
+                            IsBodyHtml = false
+                        };
+
+                        SendEmail(toAddress.Address, message.Subject, message.Body);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Third Line Support or Active Manager role not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending escalation notification: {ex.Message}");
+                throw;
+            }
+        }
+
+
+
 
         // Centralized method for sending emails
         private void SendEmail(string toEmail, string subject, string body)
@@ -280,5 +483,14 @@ namespace Helpdesk.Hangfire
             SendEscalationNotificationToFirstLineSupport(firstLineIncident);
         }
 
+        public void SendEscalationNotificationToSecondLineSupportWrapper(SecondLineSupport secondLineIncident)
+        {
+            SendEscalationNotificationToSecondLineSupport(secondLineIncident);
+        }
+
+        public void SendEscalationNotificationToThirdLineSupportWrapper(ThirdLineSupport thirdLineIncident)
+        {
+            SendEscalationNotificationToThirdLineSupport(thirdLineIncident);
+        }
     }
 }

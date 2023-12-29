@@ -17,7 +17,7 @@ namespace Helpdesk.Controllers
         // GET: ActiveManagers
         public ActionResult Index()
         {
-            var activeManagers = db.ActiveManagers.Include(a => a.ApprovedRequest).Include(a => a.Category).Include(a => a.DatabaseType).Include(a => a.Designation).Include(a => a.EnvironmentType).Include(a => a.HardwareDescription).Include(a => a.Products).Include(a => a.SubCategories).Include(a => a.Title).Include(a => a.VirtualizedPlatforms);
+            var activeManagers = db.ActiveManagers.Include(a => a.ApprovedRequest).Include(a => a.Category).Include(a => a.DatabaseType).Include(a => a.Designation).Include(a => a.EnvironmentType).Include(a => a.HardwareDescription).Include(a => a.Products).Include(a => a.SubCategories).Include(a => a.VirtualizedPlatforms);
             return View(activeManagers.ToList());
         }
 

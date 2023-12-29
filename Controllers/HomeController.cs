@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Helpdesk.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Helpdesk.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ApplicationDbContext db = new ApplicationDbContext();
         public ActionResult Index()
         {
             if (User.Identity.IsAuthenticated)
@@ -32,6 +35,33 @@ namespace Helpdesk.Controllers
 
             var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
             var roles = userManager.GetRoles(User.Identity.GetUserId());
+
+            ViewBag.ClientCount = GetClientCount();
+
+            ViewBag.ClientAdminCount = GetClientAdminCount();
+
+            ViewBag.XETEmployeesCount = GetXETEmployeesCount();
+
+            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountFirst();
+
+            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountFirst();
+
+            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountFirst();
+
+
+            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountSecond();
+
+            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountSecond();
+
+            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountSecond();
+
+
+            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountThird();
+
+            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountThird();
+
+            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountThird();
+
 
             if (roles.Contains("Administrator"))
             {
@@ -72,6 +102,139 @@ namespace Helpdesk.Controllers
             // Default dashboard for other roles
             return View();
         }
+
+        private int GetClientCount()
+        {
+            // Replace this with your actual database query
+            using (var db = new ApplicationDbContext()) // Adjust this to your DbContext
+            {
+                // Assuming OnboardingId is the column used for identifying clients
+                int clientCount = db.ApprovedRequests.Count();
+                return clientCount;
+            }
+        }
+
+        private int GetClientAdminCount()
+        {
+            using (var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext())))
+            {
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+
+                var clientId = roleManager.Roles.FirstOrDefault(r => r.Name == "Client Admin")?.Id;
+
+                if (clientId != null)
+                {
+                    var clientAdminCount = userManager.Users.Count(u => u.Roles.Any(r => r.RoleId == clientId));
+                    return clientAdminCount;
+                }
+
+                return 0;
+            }
+        }
+
+        private int GetXETEmployeesCount()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming Email is the column used for storing email addresses
+                int xETEmployeesCount = db.Users.Count(u => u.Email.EndsWith("@xetgroup.com"));
+                return xETEmployeesCount;
+            }
+        }
+
+        private int GetResolvedIncidentsCountFirst()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int resolvedIncidentsCount = db.ResolvedIncidents.Count(u => u.TicketStatus == TicketStatus.Closed);
+                return resolvedIncidentsCount;
+            }
+        }
+
+        private int GetUnresolvedIncidentsCountFirst()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int unresolvedIncidentsCount = db.FirstLineSupports.Count(u => u.TicketStatus == TicketStatus.Open || u.TicketStatus == TicketStatus.Pending || u.TicketStatus == TicketStatus.WaitingCustomerFeedback);
+                return unresolvedIncidentsCount;
+            }
+        }
+
+        private int GetEscalatedIncidentsCountFirst()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int escalatedIncidentsCount = db.FirstLineSupports.Count(u => u.TicketStatus == TicketStatus.Escalated);
+                return escalatedIncidentsCount;
+            }
+        }
+
+
+        private int GetResolvedIncidentsCountSecond()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int resolvedIncidentsCount = db.ResolvedIncidents.Count(u => u.TicketStatus == TicketStatus.Closed);
+                return resolvedIncidentsCount;
+            }
+        }
+
+        private int GetUnresolvedIncidentsCountSecond()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+
+                int unresolvedIncidentsCount = db.SecondLineSupports.Count(u => u.TicketStatus == TicketStatus.Open || u.TicketStatus == TicketStatus.Pending || u.TicketStatus == TicketStatus.WaitingCustomerFeedback);
+                return unresolvedIncidentsCount;
+            }
+        }
+
+        private int GetEscalatedIncidentsCountSecond()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int escalatedIncidentsCount = db.SecondLineSupports.Count(u => u.TicketStatus == TicketStatus.Escalated);
+                return escalatedIncidentsCount;
+            }
+        }
+
+
+        private int GetResolvedIncidentsCountThird()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int resolvedIncidentsCount = db.ResolvedIncidents.Count(u => u.TicketStatus == TicketStatus.Closed);
+                return resolvedIncidentsCount;
+            }
+        }
+
+        private int GetUnresolvedIncidentsCountThird()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int unresolvedIncidentsCount = db.ThirdLineSupports.Count(u => u.TicketStatus == TicketStatus.Open || u.TicketStatus == TicketStatus.Pending || u.TicketStatus == TicketStatus.WaitingCustomerFeedback);
+                return unresolvedIncidentsCount;
+            }
+        }
+
+        private int GetEscalatedIncidentsCountThird()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                // Assuming TicketStatus is the enum property used for storing the status of incidents
+                int escalatedIncidentsCount = db.ThirdLineSupports.Count(u => u.TicketStatus == TicketStatus.Escalated);
+                return escalatedIncidentsCount;
+            }
+        }
+
+
 
 
         public ActionResult About()

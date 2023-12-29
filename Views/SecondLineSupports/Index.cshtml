@@ -89,6 +89,9 @@
                         @Html.ActionLink("Edit", "Edit", new { id = item.IncidentId }, new { @class = "btn btn-primary btn-sm" }) |
                         @Html.ActionLink("Details", "Details", new { id = item.IncidentId }, new { @class = "btn btn-info btn-sm" }) |
                         @Html.ActionLink("Delete", "Delete", new { id = item.IncidentId }, new { @class = "btn btn-danger btn-sm" })
+                        @Html.ActionLink("Escalate", "EscalateIncident", "Incidents", new { id = item.IncidentId }, new { @class = "btn btn-success btn-sm" })
+
+
                     </td>
                 </tr>
             }

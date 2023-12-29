@@ -14,6 +14,8 @@ using Microsoft.AspNet.Identity;
 using AttendanceManagement;
 using Microsoft.Ajax.Utilities;
 using static Hangfire.Storage.JobStorageFeatures;
+using System.Data.Entity.Infrastructure;
+using Hangfire;
 
 namespace Helpdesk.Controllers
 {
@@ -25,6 +27,7 @@ namespace Helpdesk.Controllers
 
 
         private readonly BackgroundJobs backgroundJobs;
+
 
         public IncidentsController()
         {
@@ -550,5 +553,210 @@ namespace Helpdesk.Controllers
             }
         }
 
+        public ActionResult EscalateIncident(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            if (User.IsInRole("First Line Support"))
+            {
+
+                FirstLineSupport firstLineIncident = db.FirstLineSupports.Find(id);
+
+                if (firstLineIncident == null)
+                {
+                    return HttpNotFound();
+                }
+
+                firstLineIncident.TicketStatus = TicketStatus.Escalated;
+
+
+                var secondLineSupport = new SecondLineSupport
+                {
+                    ReferenceNumber = firstLineIncident.ReferenceNumber,
+                    OnboardingId = firstLineIncident.OnboardingId,
+                    ProductId = firstLineIncident.ProductId,
+                    CategoryId = firstLineIncident.CategoryId,
+                    SubCategoryId = firstLineIncident.SubCategoryId,
+                    Subject = firstLineIncident.Subject,
+                    Description = firstLineIncident.Description,
+                    ProductVersion = firstLineIncident.ProductVersion,
+                    DatabaseTypeId = firstLineIncident.DatabaseTypeId,
+                    HardwareDescriptionId = firstLineIncident.HardwareDescriptionId,
+                    EnvironmentTypeId = firstLineIncident.EnvironmentTypeId,
+                    VirtualizedPlatformId = firstLineIncident.VirtualizedPlatformId,
+                    Title = firstLineIncident.Title,
+                    CallersName = firstLineIncident.CallersName,
+                    CallersSurname = firstLineIncident.CallersSurname,
+                    EmailAddress = firstLineIncident.EmailAddress,
+                    CellNumber = firstLineIncident.CellNumber,
+                    DesignationId = firstLineIncident.DesignationId,
+                    LoggedDate = firstLineIncident.LoggedDate,
+                };
+
+                db.SecondLineSupports.Add(secondLineSupport);
+                db.Incidents.Remove(firstLineIncident);
+
+                BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToFirstLineSupportWrapper(firstLineIncident));
+
+
+
+
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        db.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.State == EntityState.Modified)
+                            {
+
+                                entry.Reload();
+                            }
+                        }
+                    }
+                }
+            }
+            else if (User.IsInRole("Second Line Support"))
+            {
+                SecondLineSupport secondLineIncident = db.SecondLineSupports.Find(id);
+
+                if (secondLineIncident == null)
+                {
+                    return HttpNotFound();
+                }
+
+                secondLineIncident.TicketStatus = TicketStatus.Escalated;
+
+
+                var thirdLineSupport = new ThirdLineSupport
+                {
+                    ReferenceNumber = secondLineIncident.ReferenceNumber,
+                    OnboardingId = secondLineIncident.OnboardingId,
+                    ProductId = secondLineIncident.ProductId,
+                    CategoryId = secondLineIncident.CategoryId,
+                    SubCategoryId = secondLineIncident.SubCategoryId,
+                    Subject = secondLineIncident.Subject,
+                    Description = secondLineIncident.Description,
+                    ProductVersion = secondLineIncident.ProductVersion,
+                    DatabaseTypeId = secondLineIncident.DatabaseTypeId,
+                    HardwareDescriptionId = secondLineIncident.HardwareDescriptionId,
+                    EnvironmentTypeId = secondLineIncident.EnvironmentTypeId,
+                    VirtualizedPlatformId = secondLineIncident.VirtualizedPlatformId,
+                    Title = secondLineIncident.Title,
+                    CallersName = secondLineIncident.CallersName,
+                    CallersSurname = secondLineIncident.CallersSurname,
+                    EmailAddress = secondLineIncident.EmailAddress,
+                    CellNumber = secondLineIncident.CellNumber,
+                    DesignationId = secondLineIncident.DesignationId,
+                    LoggedDate = secondLineIncident.LoggedDate,
+                };
+
+                db.ThirdLineSupports.Add(thirdLineSupport);
+                db.Incidents.Remove(secondLineIncident);
+
+                BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToSecondLineSupportWrapper(secondLineIncident));
+       
+
+
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+
+                        db.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.State == EntityState.Modified)
+                            {
+
+                                entry.Reload();
+                            }
+                        }
+                    }
+                }
+            }
+            else if (User.IsInRole("Third Line Support"))
+            {
+
+                ThirdLineSupport thirdLineIncident = db.ThirdLineSupports.Find(id);
+
+                if (thirdLineIncident == null)
+                {
+                    return HttpNotFound();
+                }
+
+                thirdLineIncident.TicketStatus = TicketStatus.Escalated;
+
+                var activeManager = new ActiveManager
+                {
+                    ReferenceNumber = thirdLineIncident.ReferenceNumber,
+                    OnboardingId = thirdLineIncident.OnboardingId,
+                    ProductId = thirdLineIncident.ProductId,
+                    CategoryId = thirdLineIncident.CategoryId,
+                    SubCategoryId = thirdLineIncident.SubCategoryId,
+                    Subject = thirdLineIncident.Subject,
+                    Description = thirdLineIncident.Description,
+                    ProductVersion = thirdLineIncident.ProductVersion,
+                    DatabaseTypeId = thirdLineIncident.DatabaseTypeId,
+                    HardwareDescriptionId = thirdLineIncident.HardwareDescriptionId,
+                    EnvironmentTypeId = thirdLineIncident.EnvironmentTypeId,
+                    VirtualizedPlatformId = thirdLineIncident.VirtualizedPlatformId,
+                    Title = thirdLineIncident.Title,
+                    CallersName = thirdLineIncident.CallersName,
+                    CallersSurname = thirdLineIncident.CallersSurname,
+                    EmailAddress = thirdLineIncident.EmailAddress,
+                    CellNumber = thirdLineIncident.CellNumber,
+                    DesignationId = thirdLineIncident.DesignationId,
+                    LoggedDate = thirdLineIncident.LoggedDate,
+                };
+
+                db.ActiveManagers.Add(activeManager);
+                db.Incidents.Remove(thirdLineIncident);
+
+                BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToThirdLineSupportWrapper(thirdLineIncident));
+
+
+
+
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+
+                        db.SaveChanges();
+                        transaction.Commit();
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.State == EntityState.Modified)
+                            {
+
+                                entry.Reload();
+                            }
+                        }
+                    }
+                }
+            }
+            TempData["SuccessMessage"] = "Incident escalated successfully.";
+
+            return RedirectToAction("Index");
+        }
     }
 }

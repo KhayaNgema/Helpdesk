@@ -198,7 +198,12 @@ namespace Helpdesk.Models
         Pending,
 
         [Display(Name = "Closed")]
-        Closed
+        Closed,
+
+        [Display(Name = "Escalated")]
+        Escalated
+
+
     }
 
     public class DatabaseType
