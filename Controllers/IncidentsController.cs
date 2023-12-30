@@ -16,6 +16,7 @@ using Microsoft.Ajax.Utilities;
 using static Hangfire.Storage.JobStorageFeatures;
 using System.Data.Entity.Infrastructure;
 using Hangfire;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Helpdesk.Controllers
 {
@@ -53,7 +54,7 @@ namespace Helpdesk.Controllers
                 .Include(i => i.Products)
                 .Include(i => i.SubCategories)
                 .Include(i => i.VirtualizedPlatforms)
-                .DistinctBy(i => i.ReferenceNumber) // Ensure uniqueness based on IncidentId
+                .DistinctBy(i => i.ReferenceNumber)
                 .ToList();
 
             return View(incidents);
@@ -319,8 +320,6 @@ namespace Helpdesk.Controllers
                                 });
 
             ViewBag.TitleList = new SelectList(titleList, "Value", "Text");
-
-
             ViewBag.DesignationId = new SelectList(db.Designations, "DesignationId", "DesignationName", incidentViewModel.DesignationId);
             ViewBag.OnboardingId = new SelectList(db.ApprovedRequests, "OnboardingId", "ClientName", incidentViewModel.OnboardingId);
             ViewBag.CategoryId = new SelectList(db.Categories, "CategoryId", "CategoryName", incidentViewModel.CategoryId);
@@ -526,13 +525,13 @@ namespace Helpdesk.Controllers
 
         private string GetTableNameBasedOnPriorityAndSLA(SubCategory subcategory)
         {
-            // Logic to determine the table based on priority and SLA
+            
             if (subcategory.PriorityId == 1 && subcategory.SLAValueId == 3 ||
                 subcategory.PriorityId == 1 && subcategory.SLAValueId == 2 ||
                 subcategory.PriorityId == 1 && subcategory.SLAValueId == 1 ||
                 subcategory.PriorityId == 2 && subcategory.SLAValueId == 4 ||
                 subcategory.PriorityId == 2 && subcategory.SLAValueId == 5 ||
-                subcategory.PriorityId == 2 && subcategory.SLAValueId == 6) // Assuming 1 corresponds to "High" priority and 1 corresponds to "24 Hours" SLA
+                subcategory.PriorityId == 2 && subcategory.SLAValueId == 6) 
             {
                 return "ThirdLineSupport";
 
@@ -542,14 +541,14 @@ namespace Helpdesk.Controllers
                (subcategory.PriorityId == 3 && subcategory.SLAValueId == 6 ||
                 subcategory.PriorityId == 3 && subcategory.SLAValueId == 4 ||
                 subcategory.PriorityId == 3 && subcategory.SLAValueId == 8 ||
-                subcategory.PriorityId == 3 && subcategory.SLAValueId == 7   )// Assuming 2 corresponds to "Medium" priority and 2 corresponds to "48 Hours" SLA
+                subcategory.PriorityId == 3 && subcategory.SLAValueId == 7   )
             {
-                return "SecondLineSupport"; // Replace with your actual table name
+                return "SecondLineSupport"; 
             }
             else
 
             {
-                return "FirstLineSupport"; // Replace with your actual table name
+                return "FirstLineSupport"; 
             }
         }
 
@@ -598,6 +597,12 @@ namespace Helpdesk.Controllers
 
                 db.SecondLineSupports.Add(secondLineSupport);
                 db.Incidents.Remove(firstLineIncident);
+
+                var secondLineSupportUsers = GetUsersInRole("Second Line Support");
+                foreach (var user in secondLineSupportUsers)
+                {
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                }
 
                 BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToFirstLineSupportWrapper(firstLineIncident));
 
@@ -663,6 +668,12 @@ namespace Helpdesk.Controllers
                 db.ThirdLineSupports.Add(thirdLineSupport);
                 db.Incidents.Remove(secondLineIncident);
 
+                var thirdLineSupportUsers = GetUsersInRole("Third Line Support");
+                foreach (var user in thirdLineSupportUsers)
+                {
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                }
+
                 BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToSecondLineSupportWrapper(secondLineIncident));
        
 
@@ -727,8 +738,13 @@ namespace Helpdesk.Controllers
                 db.ActiveManagers.Add(activeManager);
                 db.Incidents.Remove(thirdLineIncident);
 
-                BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToThirdLineSupportWrapper(thirdLineIncident));
+                var activeManagerUsers = GetUsersInRole("Active Manager");
+                foreach (var user in activeManagerUsers)
+                {
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                }
 
+                BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToThirdLineSupportWrapper(thirdLineIncident));
 
 
 
@@ -758,5 +774,48 @@ namespace Helpdesk.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        private void CreateNotification(string senderId, string recipientId, string subject)
+        {
+            // Increment NotificationCount for the recipient user
+            var recipientUser = db.Users.Find(recipientId);
+
+            if (recipientUser != null)
+            {
+                recipientUser.NotificationCount++;
+                db.SaveChanges();
+            }
+
+            // Create the new notification
+            var notification = new Notification
+            {
+                SenderId = senderId,
+                RecipientId = recipientId,
+                NotificationSubject = subject,
+                NotificationDate = DateTime.Now,
+                IsRead = false,
+            };
+
+            // Save the new notification to the database
+            db.Notifications.Add(notification);
+            db.SaveChanges();
+        }
+
+
+        private List<ApplicationUser> GetUsersInRole(string roleName)
+        {
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+            var roleId = roleManager.Roles.SingleOrDefault(r => r.Name == roleName)?.Id;
+
+            if (roleId != null)
+            {
+                return db.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).ToList();
+            }
+
+            return new List<ApplicationUser>();
+        }
+
     }
 }

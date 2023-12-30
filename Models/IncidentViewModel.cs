@@ -44,7 +44,7 @@ namespace Helpdesk.Models
         public int VirtualizedPlatformId { get; set; }
         public virtual VirtualizedPlatform VirtualizedPlatforms { get; set; }
 
-        public PersonalTitle Title { get; set; }
+        public string Title { get; set; }
 
         public string CallersName { get; set; }
 

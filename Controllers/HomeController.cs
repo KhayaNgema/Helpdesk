@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using Helpdesk.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data.Entity;
 
 namespace Helpdesk.Controllers
 {
@@ -38,29 +39,44 @@ namespace Helpdesk.Controllers
 
             ViewBag.ClientCount = GetClientCount();
 
+            ViewBag.AllUsersCount = GetRegisteredUsersCount();
+
             ViewBag.ClientAdminCount = GetClientAdminCount();
 
             ViewBag.XETEmployeesCount = GetXETEmployeesCount();
 
-            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountFirst();
+            ViewBag.ResolvedIncidentsCountFirst = GetResolvedIncidentsCountFirst();
 
-            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountFirst();
+            ViewBag.UnresolvedIncidentsCountFirst = GetUnresolvedIncidentsCountFirst();
 
-            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountFirst();
-
-
-            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountSecond();
-
-            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountSecond();
-
-            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountSecond();
+            ViewBag.EscalatedIncidentsCountFirst = GetEscalatedIncidentsCountFirst();
 
 
-            ViewBag.ResolvedIncidentsCount = GetResolvedIncidentsCountThird();
+            ViewBag.ResolvedIncidentsCountSecond = GetResolvedIncidentsCountSecond();
 
-            ViewBag.UnresolvedIncidentsCount = GetUnresolvedIncidentsCountThird();
+            ViewBag.UnresolvedIncidentsCountSecond = GetUnresolvedIncidentsCountSecond();
 
-            ViewBag.EscalatedIncidentsCount = GetEscalatedIncidentsCountThird();
+            ViewBag.EscalatedIncidentsCountSecond = GetEscalatedIncidentsCountSecond();
+
+
+            ViewBag.ResolvedIncidentsCountThird = GetResolvedIncidentsCountThird();
+
+            ViewBag.UnresolvedIncidentsCountThird = GetUnresolvedIncidentsCountThird();
+
+            ViewBag.EscalatedIncidentsCountThird = GetEscalatedIncidentsCountThird();
+
+
+            ViewBag.AdminNotificationCount = GetNotificationAdmin();
+
+            ViewBag.FirstLineNotificationCount = GetNotificationFirstLineSupport();
+
+            ViewBag.SecondLineNotificationCount = GetNotificationSecondLineSupport();
+
+            ViewBag.ThirdLineNotificationCount = GetNotificationThirdLineSupport();
+
+            ViewBag.ActiveManagerNotificationCount = GetNotificationActiveManager();
+
+            ViewBag.InactiveManagerNotificationCount = GetNotificationInactiveManager();
 
 
             if (roles.Contains("Administrator"))
@@ -127,10 +143,19 @@ namespace Helpdesk.Controllers
                     var clientAdminCount = userManager.Users.Count(u => u.Roles.Any(r => r.RoleId == clientId));
                     return clientAdminCount;
                 }
-
                 return 0;
             }
         }
+
+        private int GetRegisteredUsersCount()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                int registeredUsersCount = db.Users.Count();
+                return registeredUsersCount;
+            }
+        }
+
 
         private int GetXETEmployeesCount()
         {
@@ -233,6 +258,211 @@ namespace Helpdesk.Controllers
                 return escalatedIncidentsCount;
             }
         }
+
+        private int GetNotificationAdmin()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var adminRoleName = "Administrator";
+
+                // Get the RoleManager
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+                // Get the list of admin role IDs asynchronously
+                var adminRoleIds = roleManager.Roles
+                    .Where(r => r.Name == adminRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+                // Get the list of admin user IDs
+                var adminUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => adminRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+                // Count notifications where the recipient is an admin user
+                int newNotificationsCount = db.Notifications.Count(n => adminUserIds.Contains(n.RecipientId));
+                return newNotificationsCount;
+            }
+        }
+
+
+        private int GetNotificationFirstLineSupport()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var firstLineSupportRoleName = "First Line Support";
+
+                // Get the RoleManager
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+                // Get the list of First Line Support role IDs asynchronously
+                var firstLineSupportRoleIds = roleManager.Roles
+                    .Where(r => r.Name == firstLineSupportRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+                // Get the list of First Line Support user IDs
+                var firstLineSupportUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => firstLineSupportRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+                // Count notifications where the recipient is in the First Line Support role
+                int newNotificationsCount = db.Notifications.Count(n => firstLineSupportUserIds.Contains(n.RecipientId));
+                return newNotificationsCount;
+            }
+        }
+
+
+        private int GetNotificationSecondLineSupport()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var secondLineSupportRoleName = "Second Line Support";
+
+
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+
+                var secondLineSupportRoleIds = roleManager.Roles
+                    .Where(r => r.Name == secondLineSupportRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+
+                var secondLineSupportUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => secondLineSupportRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+
+                int newNotificationsCount = db.Notifications.Count(n =>
+                    secondLineSupportUserIds.Contains(n.RecipientId) &&
+                    !n.IsRead
+                );
+
+                return newNotificationsCount;
+            }
+        }
+
+
+        private int GetNotificationThirdLineSupport()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var thirdLineSupportRoleName = "Third Line Support";
+
+                // Get the RoleManager
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+                // Get the list of Third Line Support role IDs asynchronously
+                var thirdLineSupportRoleIds = roleManager.Roles
+                    .Where(r => r.Name == thirdLineSupportRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+                // Get the list of Third Line Support user IDs
+                var thirdLineSupportUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => thirdLineSupportRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+                // Count notifications where the recipient is in the Third Line Support role
+                int newNotificationsCount = db.Notifications.Count(n => thirdLineSupportUserIds.Contains(n.RecipientId));
+                return newNotificationsCount;
+            }
+        }
+
+        private int GetNotificationActiveManager()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var activeManagerRoleName = "Active Manager";
+
+                // Get the RoleManager
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+                // Get the list of Active Manager role IDs asynchronously
+                var activeManagerRoleIds = roleManager.Roles
+                    .Where(r => r.Name == activeManagerRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+                // Get the list of Active Manager user IDs
+                var activeManagerUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => activeManagerRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+                // Count notifications where the recipient is in the Active Manager role
+                int newNotificationsCount = db.Notifications.Count(n => activeManagerUserIds.Contains(n.RecipientId));
+                return newNotificationsCount;
+            }
+        }
+
+        private int GetNotificationInactiveManager()
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var inactiveManagerRoleName = "Inactive Manager";
+
+                // Get the RoleManager
+                var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+
+                // Get the list of Inactive Manager role IDs asynchronously
+                var inactiveManagerRoleIds = roleManager.Roles
+                    .Where(r => r.Name == inactiveManagerRoleName)
+                    .Select(r => r.Id)
+                    .ToListAsync()
+                    .Result;
+
+                // Get the list of Inactive Manager user IDs
+                var inactiveManagerUserIds = db.Users
+                    .Where(u => u.Roles.Any(r => inactiveManagerRoleIds.Contains(r.RoleId)))
+                    .Select(u => u.Id)
+                    .ToList();
+
+                // Count notifications where the recipient is in the Inactive Manager role
+                int newNotificationsCount = db.Notifications.Count(n => inactiveManagerUserIds.Contains(n.RecipientId));
+                return newNotificationsCount;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult MarkAsRead(int id)
+        {
+            using (var db = new ApplicationDbContext())
+            {
+                var notification = db.Notifications.Find(id);
+
+                if (notification != null && !notification.IsRead)
+                {
+                    notification.IsRead = true;
+                    db.SaveChanges();
+
+                    // Decrease the count for the user only if they are in the recipient's role
+                    var userId = User.Identity.GetUserId(); // Assuming you're using ASP.NET Identity
+                    var user = db.Users.Find(userId);
+
+                    if (user != null && user.Id == notification.RecipientId)
+                    {
+                        user.NotificationCount = Math.Max(0, user.NotificationCount - 1);
+                        db.SaveChanges();
+                    }
+                }
+
+                // Return the updated notification count as JSON
+                var updatedCount = GetNotificationSecondLineSupport(); // Or any method to get the count
+                return Json(new { NotificationCount = updatedCount }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
 
 

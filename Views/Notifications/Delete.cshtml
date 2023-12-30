@@ -1,0 +1,72 @@
+﻿@model Helpdesk.Models.Notification
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Notification</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Recipient.ClientName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Recipient.ClientName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Sender.ClientName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Sender.ClientName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NotificationSubject)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NotificationSubject)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NotificationDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NotificationDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsRead)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsRead)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsUnread)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsUnread)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

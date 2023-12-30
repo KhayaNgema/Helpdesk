@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Helpdesk.Models.Notification>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .card-link {
+        text-decoration: none; /* Remove default anchor underline */
+        color: inherit; /* Inherit the default text color */
+    }
+
+        .card-link:hover {
+            background-color: #f8f9fa; /* Change background color on hover */
+            cursor: pointer;
+        }
+</style>
+
+@if (Model != null)
+{
+    <h4>Notifications</h4><br />
+
+    <div class="container">
+        @foreach (var item in Model)
+        {
+            <a href="@Url.Action("Details", "Notifications", new { id = item?.NotificationId })" class="card-link">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <p>@Html.DisplayFor(modelItem => item.Sender.FirstName) @Html.DisplayFor(modelItem => item.Sender.LastName)</p>
+                            </div>
+                            <div class="col-md-2">
+                                <p>@Html.DisplayFor(modelItem => item.NotificationSubject)</p>
+                            </div>
+                            <div class="col-md-7">
+                                <p>@Html.DisplayFor(modelItem => item.NotificationSubject)</p>
+                            </div>
+                            <div class="col-md-1 text-right text-bg-danger-right">
+                                <p>@item.NotificationDate.ToString("HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+}
+
+
+
+@functions {
+    public string FormatNotificationDate(DateTime notificationDate, string timeZoneId)
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+        var yesterday = now.AddDays(-1);
+        var threeDaysAgo = now.AddDays(-3);
+
+        if (notificationDate.Date == now.Date)
+        {
+            // Display time if it is the current day
+            return notificationDate.ToString("HH:mm");
+        }
+        else if (notificationDate.Date == yesterday.Date)
+        {
+            // Display 'Yesterday' if it is the day before
+            return "Yesterday";
+        }
+        else if (notificationDate.Date > threeDaysAgo.Date)
+        {
+            // Display date if it is within the last 3 days
+            return notificationDate.ToString("MM/dd");
+        }
+        else
+        {
+            // Display full date if it is more than 3 days ago
+            return notificationDate.ToString("MM/dd/yyyy");
+        }
+    }
+}
+
+
+

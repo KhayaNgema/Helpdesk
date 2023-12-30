@@ -26,6 +26,8 @@ namespace Helpdesk.Models
         public bool Active { get; set; }
         public bool Inactive { get; set; }
 
+        public int NotificationCount { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
@@ -85,5 +87,8 @@ namespace Helpdesk.Models
         }
 
         public System.Data.Entity.DbSet<Helpdesk.Models.ActiveManager> ActiveManagers { get; set; }
+
+        public System.Data.Entity.DbSet<Helpdesk.Models.Notification> Notifications { get; set; }
+
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
+
 
 namespace Helpdesk.Models
 {
@@ -118,6 +120,52 @@ namespace Helpdesk.Models
 
     }
 
+    public class EditXETEmployeeViewModel
+    {
+        public string Id { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+        [Display(Name = "Cell Number")]
+        public string CellNumber { get; set; }
+
+        public PersonalTitle Title { get; set; }
+
+        [Display(Name = "Designation")]
+        public int DesignationId { get; set; }
+
+        public string Role { get; set; }
+    }
+
+    public class ChangeXETEmployeeRoleViewModel
+    {
+        public string Id { get; set; }
+
+        [Display(Name = "Current Role")]
+        public string CurrentRole { get; set; }
+
+        [Display(Name = "Select Role")]
+        [Required(ErrorMessage = "Please select a role")]
+        public string Role { get; set; }
+
+        public IEnumerable<SelectListItem> Roles { get; set; }  // Add this property
+    }
+
+
+
+
+
+
 
 
     public class ResetPasswordViewModel
@@ -135,7 +183,7 @@ namespace Helpdesk.Models
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
         public string Code { get; set; }

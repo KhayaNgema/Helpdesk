@@ -16,6 +16,9 @@ using System.Collections.Generic;
 
 
 
+
+
+
 namespace Helpdesk.Controllers
 {
     [Authorize]
@@ -26,11 +29,21 @@ namespace Helpdesk.Controllers
         private readonly ApplicationDbContext db = new ApplicationDbContext();
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public ActionResult ClientsPrimaryContacts()
+
+
+        public ActionResult AllUsers()
         {
-            var clientsPrimaryContacts = db.Users.Where(user => !user.Email.EndsWith("@xetgroup.com"));
-            return View(clientsPrimaryContacts.ToList());
+            List<ApplicationUser> allUsers;
+
+            using (var db = new ApplicationDbContext())
+            {
+                allUsers = db.Users.ToList();
+            }
+
+            return View(allUsers);
         }
+
+
 
         public ActionResult XETEmployees()
         {
@@ -374,6 +387,218 @@ namespace Helpdesk.Controllers
         }
 
 
+        [HttpGet]
+        public ActionResult EditXETEmployee(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            ApplicationUser user = UserManager.FindById(id);
+
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            var model = new EditXETEmployeeViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                CellNumber = user.CellNumber,
+                Title = user.Title,
+                DesignationId = user.DesignationId
+            };
+
+            var titleList = Enum.GetValues(typeof(PersonalTitle))
+                                .Cast<PersonalTitle>()
+                                .Select(t => new SelectListItem
+                                {
+                                    Value = t.ToString(),
+                                    Text = t.ToString(),
+                                    Selected = t == user.Title
+                                });
+
+            ViewBag.TitleList = new SelectList(titleList, "Value", "Text");
+            ViewBag.DesignationId = new SelectList(db.Designations, "DesignationId", "DesignationName", user.DesignationId);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditXETEmployee(EditXETEmployeeViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = await UserManager.FindByIdAsync(model.Id);
+
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+
+                user.Email = model.Email;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.CellNumber = model.CellNumber;
+                user.Title = model.Title;
+                user.DesignationId = model.DesignationId;
+
+                var result = await UserManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    AddErrors(result);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            var titleList = Enum.GetValues(typeof(PersonalTitle))
+                                .Cast<PersonalTitle>()
+                                .Select(t => new SelectListItem
+                                {
+                                    Value = t.ToString(),
+                                    Text = t.ToString()
+                                });
+
+            ViewBag.TitleList = new SelectList(titleList, "Value", "Text");
+            ViewBag.DesignationId = new SelectList(db.Designations, "DesignationId", "DesignationName", model.DesignationId);
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult ChangeXETEmployeeRole(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            ApplicationUser user = UserManager.FindById(id);
+
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            var userRoles = UserManager.GetRoles(user.Id);
+
+            var model = new ChangeXETEmployeeRoleViewModel
+            {
+                Id = user.Id,
+                CurrentRole = userRoles.Any() ? userRoles.First() : "No Role",
+                Roles = GetAllRoles(),
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ChangeXETEmployeeRole(ChangeXETEmployeeRoleViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = await UserManager.FindByIdAsync(model.Id);
+
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+
+                // Remove current roles
+                var currentRoles = UserManager.GetRoles(user.Id);
+                await UserManager.RemoveFromRolesAsync(user.Id, currentRoles.ToArray());
+
+                // Add the new role
+                await UserManager.AddToRoleAsync(user.Id, model.Role);
+
+                // Redirect to EditXETEmployee with the user ID
+                return RedirectToAction("EditXETEmployee", "Account", new { id = user.Id });
+            }
+
+            // If we got this far, something failed, redisplay form
+            model.Roles = GetAllRoles().ToList();
+            ViewBag.Roles = new SelectList(model.Roles, "Value", "Text");
+
+            return View(model);
+        }
+
+
+        private IEnumerable<SelectListItem> GetAllRoles()
+        {
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(new ApplicationDbContext()));
+            return roleManager.Roles.Select(r => new SelectListItem { Value = r.Name, Text = r.Name });
+        }
+
+
+        [HttpGet]
+        public ActionResult DeleteXETEmployee(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            ApplicationUser user = UserManager.FindById(id);
+
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            var model = new EditXETEmployeeViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                CellNumber = user.CellNumber,
+                Title = user.Title,
+                DesignationId = user.DesignationId,
+                Role = UserManager.GetRoles(user.Id).FirstOrDefault()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteXETEmployeeConfirmed(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            ApplicationUser user = await UserManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            var result = await UserManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                // Handle the error, maybe display a message to the user
+                return RedirectToAction("DeleteXETEmployee", new { id = user.Id });
+            }
+        }
 
 
 

@@ -222,6 +222,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IncidentsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\NotificationsController.cs" />
     <Compile Include="Controllers\PrioritiesController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\ResolvedIncidentsController.cs" />
@@ -239,6 +240,18 @@
     <Compile Include="Migrations\202312261816280_InitialUpdate.designer.cs">
       <DependentUpon>202312261816280_InitialUpdate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202312301247163_Notifications.cs" />
+    <Compile Include="Migrations\202312301247163_Notifications.designer.cs">
+      <DependentUpon>202312301247163_Notifications.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202312301832035_AppUserNoti.cs" />
+    <Compile Include="Migrations\202312301832035_AppUserNoti.designer.cs">
+      <DependentUpon>202312301832035_AppUserNoti.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202312301934509_DeleteIsUnread.cs" />
+    <Compile Include="Migrations\202312301934509_DeleteIsUnread.designer.cs">
+      <DependentUpon>202312301934509_DeleteIsUnread.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CategorySubcategory.cs" />
@@ -249,6 +262,7 @@
     <Compile Include="Models\Incident.cs" />
     <Compile Include="Models\IncidentViewModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\Notification.cs" />
     <Compile Include="Models\Priority.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -275,6 +289,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\NiceMessage.jpeg" />
+    <Content Include="Images\Sett.jpeg" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -441,7 +457,7 @@
     <Content Include="Views\ActiveManagers\Details.cshtml" />
     <Content Include="Views\ActiveManagers\Edit.cshtml" />
     <Content Include="Views\ActiveManagers\Index.cshtml" />
-    <Content Include="Views\Account\ClientsPrimaryContacts.cshtml" />
+    <Content Include="Views\Account\ClientAdministrator.cshtml" />
     <Content Include="Views\Account\RegisterXET.cshtml" />
     <Content Include="Views\Account\XETEmployees.cshtml" />
     <Content Include="Views\Home\FirstLineDashboard.cshtml" />
@@ -451,6 +467,16 @@
     <Content Include="Views\Home\InactiveManagerDashboard.cshtml" />
     <Content Include="Views\Home\ClientAdminDashboard.cshtml" />
     <Content Include="Views\Home\AdminDashboard.cshtml" />
+    <Content Include="Views\Account\EditXETEmployee.cshtml" />
+    <Content Include="Views\Account\ChangeXETEmployeeRole.cshtml" />
+    <Content Include="Views\Account\DeleteXETEmployee.cshtml" />
+    <Content Include="Views\Notifications\Create.cshtml" />
+    <Content Include="Views\Notifications\Delete.cshtml" />
+    <Content Include="Views\Notifications\Details.cshtml" />
+    <Content Include="Views\Notifications\Edit.cshtml" />
+    <Content Include="Views\Notifications\Index.cshtml" />
+    <Content Include="Views\Account\AllUsers.cshtml" />
+    <Content Include="Views\Shared\_MessagesPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -486,6 +512,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202312261816280_InitialUpdate.resx">
       <DependentUpon>202312261816280_InitialUpdate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202312301247163_Notifications.resx">
+      <DependentUpon>202312301247163_Notifications.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202312301832035_AppUserNoti.resx">
+      <DependentUpon>202312301832035_AppUserNoti.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202312301934509_DeleteIsUnread.resx">
+      <DependentUpon>202312301934509_DeleteIsUnread.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
