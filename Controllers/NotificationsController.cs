@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Helpdesk.Models;
+using Helpdesk.Services;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.SignalR;
 
 namespace Helpdesk.Controllers
 {
@@ -39,6 +38,7 @@ namespace Helpdesk.Controllers
 
             // Update IsRead status
             notification.IsRead = true;
+            notification.IsNew = false;
             db.SaveChanges();
 
             // Decrement notification count
@@ -54,7 +54,6 @@ namespace Helpdesk.Controllers
             return View(notification);
         }
 
-
         // GET: Notifications/Create
         public ActionResult Create()
         {
@@ -63,23 +62,50 @@ namespace Helpdesk.Controllers
             return View();
         }
 
-        // POST: Notifications/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NotificationId,NotificationSubject,SenderId,RecipientId,NotificationDate,IsRead,IsUnread")] Notification notification)
+        public ActionResult Create([Bind(Include = "NotificationSubject, RecipientId")] Notification notification)
         {
             if (ModelState.IsValid)
             {
+                // Set other properties of the notification
+                notification.SenderId = User.Identity.GetUserId();
+                notification.NotificationDate = DateTime.Now;
+                notification.IsRead = false;
+
+
                 db.Notifications.Add(notification);
                 db.SaveChanges();
+
+                // Send notification to the recipient using SignalR
+                SendNotificationToRecipient(notification);
+
                 return RedirectToAction("Index");
             }
 
-            ViewBag.RecipientId = new SelectList(db.Users, "Id", "ClientName", notification.RecipientId);
-            ViewBag.SenderId = new SelectList(db.Users, "Id", "ClientName", notification.SenderId);
+            // ... other logic ...
+
             return View(notification);
+        }
+
+        // Helper method to send a notification to the recipient using SignalR
+        private void SendNotificationToRecipient(Notification notification)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            var recipientConnectionId = GetRecipientConnectionId(notification.RecipientId);
+
+            if (!string.IsNullOrEmpty(recipientConnectionId))
+            {
+                // Notify the recipient about the new notification
+                hubContext.Clients.Client(recipientConnectionId).receiveNotification(notification);
+            }
+        }
+
+        // Helper method to get the connection ID of a user
+        private string GetRecipientConnectionId(string userId)
+        {
+            var user = db.Users.Find(userId);
+            return user?.Id;
         }
 
         // GET: Notifications/Edit/5
@@ -100,8 +126,6 @@ namespace Helpdesk.Controllers
         }
 
         // POST: Notifications/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "NotificationId,NotificationSubject,SenderId,RecipientId,NotificationDate,IsRead,IsUnread")] Notification notification)
@@ -133,7 +157,7 @@ namespace Helpdesk.Controllers
         }
 
         // POST: Notifications/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {

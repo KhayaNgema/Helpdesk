@@ -118,6 +118,8 @@ namespace Helpdesk.Models
         public int DesignationId { get; set; }
         public virtual Designation Designations { get; set; }
 
+        public string Company { get; set; }
+
     }
 
     public class EditXETEmployeeViewModel
@@ -157,7 +159,7 @@ namespace Helpdesk.Models
         [Display(Name = "Select Role")]
         [Required(ErrorMessage = "Please select a role")]
         public string Role { get; set; }
-
+  
         public IEnumerable<SelectListItem> Roles { get; set; }  // Add this property
     }
 

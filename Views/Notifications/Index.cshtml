@@ -5,47 +5,221 @@
 }
 
 <style>
-    .card-link {
-        text-decoration: none; /* Remove default anchor underline */
-        color: inherit; /* Inherit the default text color */
+    .notification-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-        .card-link:hover {
-            background-color: #f8f9fa; /* Change background color on hover */
-            cursor: pointer;
+
+    .unread-notification {
+        font-weight: bold;
+    }
+
+
+
+    .notification-item {
+        cursor: pointer;
+        border-bottom: 1px solid #eee; /* Add lighter gray horizontal borders */
+        margin-bottom: 0;
+        border-radius: 1px; /* Add border radius for a rounded appearance */
+        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Add box-shadow property for shadow effect */
+        padding: 10px;
+        height: 50px;
+    }
+
+        .notification-item:hover {
+            background-color: #e7eff0;
+            transform: translateY(-3px); /* Move the element up by 3 pixels on hover for a 3D effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add dark shadow on hover */
         }
+
+
+
+    .unread-notification {
+        font-weight: bold;
+    }
+
+    .vertical-buttons {
+        position: fixed;
+        top: 120px;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        margin-right: 20px;
+    }
+
+    .vertical-button {
+        padding: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        border: none;
+        text-align: left;
+        transition: background-color 0.3s ease;
+        border-radius: 8px;
+        position: relative;
+        background-color: #030319; /* Button background color */
+    }
+
+        .vertical-button:hover {
+            background-color: #e7eff0;
+        }
+
+        .vertical-button::before {
+            content: attr(data-tooltip);
+            background-color: #030319; /* Tooltip background color */
+            color: #fff;
+            border-radius: 4px;
+            padding: 12px;
+            position: absolute;
+            top: 50%;
+            right: calc(100% + 10px);
+            transform: translateY(-50%);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            width: 80px; /* Adjusted width of the tooltip background */
+        }
+
+        .vertical-button:hover::before {
+            opacity: 1;
+        }
+
+        .vertical-button i {
+            color: #fff;
+        }
+
+        .vertical-button:hover i {
+            color: #030319; /* Icon color on hover */
 </style>
 
-@if (Model != null)
-{
-    <h4>Notifications</h4><br />
+<div class="container">
 
-    <div class="container">
-        @foreach (var item in Model)
-        {
-            <a href="@Url.Action("Details", "Notifications", new { id = item?.NotificationId })" class="card-link">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <p>@Html.DisplayFor(modelItem => item.Sender.FirstName) @Html.DisplayFor(modelItem => item.Sender.LastName)</p>
-                            </div>
-                            <div class="col-md-2">
-                                <p>@Html.DisplayFor(modelItem => item.NotificationSubject)</p>
-                            </div>
-                            <div class="col-md-7">
-                                <p>@Html.DisplayFor(modelItem => item.NotificationSubject)</p>
-                            </div>
-                            <div class="col-md-1 text-right text-bg-danger-right">
-                                <p>@item.NotificationDate.ToString("HH:mm")</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        }
+    <div class="vertical-buttons">
+        <button class="vertical-button" data-tooltip="New"><i class="fas fa-plus"></i></button>
+        <button class="vertical-button" data-tooltip="Inbox"><i class="fas fa-inbox"></i></button>
+        <button class="vertical-button" data-tooltip="Sent"><i class="fas fa-paper-plane"></i></button>
+        <button class="vertical-button" data-tooltip="Starred"><i class="fas fa-star"></i></button>
+        <button class="vertical-button" data-tooltip="Deleted"><i class="fas fa-trash-alt"></i></button>
     </div>
-}
+
+
+
+
+
+
+    <ul id="notificationList" class="list-group">
+        <!-- Existing notifications rendered on the server-side -->
+        @foreach (var notification in Model.OrderByDescending(x => x.NotificationDate))
+        {
+            <li class="list-group-item notification-item @(notification.IsRead ? "" : "unread-notification")"
+                data-notification-id="@notification.NotificationId"
+                data-is-read="@notification.IsRead">
+                <div class="notification-content">
+                    <p class="notification-sender">@notification.Sender.FirstName @notification.Sender.LastName</p>
+                    <p class="notification-subject">@notification.NotificationSubject</p>
+                    <p class="notification-date" data-notification-date="@notification.NotificationDate" data-time-zone-id="UTC">
+                        @FormatNotificationDate(notification.NotificationDate, "UTC")
+                    </p>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+
+
+<!-- Include jQuery and SignalR scripts if not already included -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.11/signalr.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:44369/NotificationHub")
+            .configureLogging(signalR.LogLevel.Trace)
+            .build();
+
+
+        // Define a function to handle received notifications
+        connection.on("receiveNotification", function (notification) {
+            // Handle the received notification here
+            console.log("Received notification:", notification);
+
+            // Update UI or perform other actions as needed
+            updateUIWithNotification(notification);
+        });
+
+        // Start the SignalR connection
+        connection.start()
+            .then(function () {
+                console.log("SignalR connected");
+            })
+            .catch(function (err) {
+                console.error("Error connecting to SignalR:", err);
+            });
+
+        function updateUIWithNotification(notificationItem) {
+            // Create HTML for the new notification
+            var newNotificationHtml = `
+        <li class="list-group-item notification-item ${(notificationItem.IsRead) ? "" : "unread-notification"}"
+            data-notification-id="${notificationItem.NotificationId}"
+            data-is-read="${notificationItem.IsRead}">
+            <div class="notification-content">
+                <p class="notification-sender">${notificationItem.Sender.FirstName} ${notificationItem.Sender.LastName}</p>
+                <p class="notification-subject">${notificationItem.NotificationSubject}</p>
+                <p class="notification-date">${formatNotificationDate(new Date(notificationItem.NotificationDate), "UTC")}</p>
+            </div>
+        </li>`;
+
+            // Prepend the new notification to the list
+            $("#notificationList").prepend(newNotificationHtml);
+
+            // Update the time display
+            updateTimeDisplay();
+        }
+
+        // Handle click events on notification items
+        $(document).on("click", ".notification-item", function () {
+            const notificationId = $(this).data("notification-id");
+            const isRead = $(this).data("is-read");
+
+            if (!isRead) {
+                $(this).data("is-read", true);
+                $(this).removeClass("unread-notification");
+                // Perform other actions for marking the notification as read
+            }
+
+            window.location.href = `/Notifications/Details/${notificationId}`;
+        });
+
+        // Function to update the time display
+        function updateTimeDisplay() {
+            $(".notification-date").each(function () {
+                var notificationDate = new Date($(this).data("notification-date"));
+                var timeZoneId = $(this).data("time-zone-id");
+                var formattedDate = formatNotificationDate(notificationDate, timeZoneId);
+                $(this).text(formattedDate);
+            });
+        }
+
+        // Periodically update the time display (every minute in this example)
+        setInterval(updateTimeDisplay, 60000); // 60000 milliseconds = 1 minute
+
+        // Function to format a date
+        function formatNotificationDate(date, timeZoneId) {
+            // Check if timeZoneId is provided and supported
+            if (timeZoneId && Intl.DateTimeFormat().resolvedOptions().timeZone === timeZoneId) {
+                return date.toLocaleString('en-US', { timeZone: timeZoneId });
+            } else {
+                return date.toLocaleString(); // Use the default system timezone
+            }
+        }
+    });
+</script>
 
 
 
@@ -54,31 +228,59 @@
     {
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
         var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
-        var yesterday = now.AddDays(-1);
-        var threeDaysAgo = now.AddDays(-3);
+        var timeDifference = now - notificationDate;
 
-        if (notificationDate.Date == now.Date)
+        if (timeDifference.TotalSeconds <= 60) // Display "Just now" for the first 60 seconds
         {
-            // Display time if it is the current day
+            return "Just now";
+        }
+        else if (timeDifference.TotalMinutes < 60)
+        {
+            var minutes = (int)timeDifference.TotalMinutes;
+            return $"{minutes} minute{(minutes == 1 ? "" : "s")} ago";
+        }
+        else if (timeDifference.TotalHours < 24)
+        {
+            var hours = (int)timeDifference.TotalHours;
+            return $"{hours} hour{(hours == 1 ? "" : "s")} ago";
+        }
+        else if (timeDifference.TotalDays < 1)
+        {
             return notificationDate.ToString("HH:mm");
         }
-        else if (notificationDate.Date == yesterday.Date)
+        else if (timeDifference.TotalDays < 2)
         {
-            // Display 'Yesterday' if it is the day before
             return "Yesterday";
         }
-        else if (notificationDate.Date > threeDaysAgo.Date)
+        else if (timeDifference.TotalDays < 3)
         {
-            // Display date if it is within the last 3 days
             return notificationDate.ToString("MM/dd");
         }
         else
         {
-            // Display full date if it is more than 3 days ago
-            return notificationDate.ToString("MM/dd/yyyy");
+            var days = (int)timeDifference.TotalDays;
+            return days <= 10
+                ? $"{days} day{(days == 1 ? "" : "s")} ago"
+                : notificationDate.ToString("MM/dd/yyyy");
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

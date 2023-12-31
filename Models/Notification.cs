@@ -33,5 +33,9 @@ namespace Helpdesk.Models
         public DateTime NotificationDate { get; set; }
 
         public bool IsRead { get; set; }
+
+        public bool IsNew { get; set; }
+
+        public string FullSenderName => $"{Sender.FirstName} {Sender.LastName}";
     }
 }

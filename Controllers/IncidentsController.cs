@@ -17,6 +17,8 @@ using static Hangfire.Storage.JobStorageFeatures;
 using System.Data.Entity.Infrastructure;
 using Hangfire;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Helpdesk.Services;
+using Microsoft.AspNet.SignalR;
 
 namespace Helpdesk.Controllers
 {
@@ -77,7 +79,7 @@ namespace Helpdesk.Controllers
             return View(incident);
         }
 
-        [Authorize]
+
         public ActionResult Create()
         {
             // In your controller action
@@ -778,7 +780,7 @@ namespace Helpdesk.Controllers
 
         private void CreateNotification(string senderId, string recipientId, string subject)
         {
-            // Increment NotificationCount for the recipient user
+
             var recipientUser = db.Users.Find(recipientId);
 
             if (recipientUser != null)
@@ -787,7 +789,6 @@ namespace Helpdesk.Controllers
                 db.SaveChanges();
             }
 
-            // Create the new notification
             var notification = new Notification
             {
                 SenderId = senderId,
@@ -795,11 +796,14 @@ namespace Helpdesk.Controllers
                 NotificationSubject = subject,
                 NotificationDate = DateTime.Now,
                 IsRead = false,
+                IsNew = true 
             };
 
-            // Save the new notification to the database
             db.Notifications.Add(notification);
             db.SaveChanges();
+
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            hubContext.Clients.User(recipientId).receiveNotification(notification);
         }
 
 

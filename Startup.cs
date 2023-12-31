@@ -1,11 +1,11 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
+using Helpdesk;
+using Helpdesk.Hangfire;
+using Helpdesk.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
 using Owin;
-using Helpdesk.Models;
-using Helpdesk.Hangfire;
-using Helpdesk;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 [assembly: OwinStartupAttribute(typeof(AttendanceManagement.Startup))]
 namespace AttendanceManagement
@@ -25,17 +25,24 @@ namespace AttendanceManagement
 
             ConfigureHangfireEnhanced(app);
 
-            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
+            app.MapSignalR();
 
-            app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
+            ConfigureAdditionalAppSettings(app);
         }
 
         private void ConfigureHangfireEnhanced(IAppBuilder app)
         {
             GlobalConfiguration.Configuration.UseSqlServerStorage("Data Source=(LocalDb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\aspnet-Helpdesk-20240101013948.mdf;Initial Catalog=aspnet-Helpdesk-20240101013948;Integrated Security=True");
+            Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage("YourHangfireConnectionString"); // Change this line
             app.UseHangfireDashboard();
             app.UseHangfireServer();
             RecurringJob.AddOrUpdate("auto-escalation-job", () => backgroundJobs.AutoEscalateIncidents(), "0 * * * *");
+        }
+
+        private void ConfigureAdditionalAppSettings(IAppBuilder app)
+        {
+            // Additional configurations for your application
+            // app.UseErrorPage(); // Commented this line to address the compilation error
         }
     }
 }
