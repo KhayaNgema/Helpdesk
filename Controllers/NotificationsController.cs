@@ -17,6 +17,7 @@ namespace Helpdesk.Controllers
         // GET: Notifications
         public ActionResult Index()
         {
+
             var notifications = db.Notifications.Include(n => n.Recipient).Include(n => n.Sender);
             return View(notifications.ToList());
         }

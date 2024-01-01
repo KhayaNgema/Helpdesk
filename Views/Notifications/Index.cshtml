@@ -72,7 +72,7 @@
             background-color: #030319; /* Tooltip background color */
             color: #fff;
             border-radius: 4px;
-            padding: 12px;
+            padding: 10px;
             position: absolute;
             top: 50%;
             right: calc(100% + 10px);
@@ -82,6 +82,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
             width: 80px; /* Adjusted width of the tooltip background */
+           
         }
 
         .vertical-button:hover::before {
@@ -92,23 +93,81 @@
             color: #fff;
         }
 
+
         .vertical-button:hover i {
-            color: #030319; /* Icon color on hover */
+            color: #030319;
+        }
+
+
+    .search-container {
+        position: fixed;
+        top: 50px; /* Adjust the top position to add more space between the fixed container and the top of the screen */
+        left: 0;
+        width: 100%;
+        background-color: #EDFBFF;
+        padding: 8px;
+        z-index: 1000;
+        box-sizing: border-box;
+        padding: 20px;
+    }
+
+    #notificationSearch {
+        width: calc(100% - 60px); /* Increase the width by changing the value */
+        border: 2px solid #6ff0dc; /* Add a border and adjust its style */
+        border-radius: 10px;
+        outline: none; /* Removed outline for better aesthetics */
+        padding: 10px;
+        margin-left: 640px; /* Adjust the left margin to move the search bar a bit to the right */
+    }
+
+
+
+    .search-results-not-found {
+        color: #000000;
+        font-style: italic;
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+        margin-top: 0px; /* Adjust the margin as needed */
+        padding-top: 22px; /* Adjust the padding as needed */
+    } 
+
+        .search-results-not-found {
+        color: #000000;
+        display: none;
+        position: fixed;
+        top:0%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-style: italic;
+    }
+
+
 </style>
 
 <div class="container">
 
     <div class="vertical-buttons">
-        <button class="vertical-button" data-tooltip="New"><i class="fas fa-plus"></i></button>
-        <button class="vertical-button" data-tooltip="Inbox"><i class="fas fa-inbox"></i></button>
-        <button class="vertical-button" data-tooltip="Sent"><i class="fas fa-paper-plane"></i></button>
-        <button class="vertical-button" data-tooltip="Starred"><i class="fas fa-star"></i></button>
-        <button class="vertical-button" data-tooltip="Deleted"><i class="fas fa-trash-alt"></i></button>
+        <button class="vertical-button" data-tooltip="New" onclick="redirectTo('/Notifications/Create')"><i class="fas fa-plus"></i></button>
+        <button class="vertical-button" data-tooltip="Inbox" onclick="redirectTo('/YourControllerName/YourActionNameForInbox')"><i class="fas fa-inbox"></i></button>
+        <button class="vertical-button" data-tooltip="Sent" onclick="redirectTo('/YourControllerName/YourActionNameForSent')"><i class="fas fa-paper-plane"></i></button>
+        <button class="vertical-button" data-tooltip="Starred" onclick="redirectTo('/YourControllerName/YourActionNameForStarred')"><i class="fas fa-star"></i></button>
+        <button class="vertical-button" data-tooltip="Deleted" onclick="redirectTo('/YourControllerName/YourActionNameForDeleted')"><i class="fas fa-trash-alt"></i></button>
     </div>
 
+    <script>
+        function redirectTo(url) {
+            window.location.href = url;
+        }
+    </script>
 
 
-
+    <div class="search-container">
+        <input type="text" id="notificationSearch" placeholder="Search notifications by sender, subject, or date..." oninput="searchNotifications()">
+        <p class="search-results-not-found">No search results found. Please check your spelling or accuracy of your search.</p>
+    </div>
 
 
     <ul id="notificationList" class="list-group">
@@ -138,11 +197,10 @@
 
 <script>
     $(document).ready(function () {
+        // Establish a connection to the SignalR hub
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:44369/NotificationHub")
-            .configureLogging(signalR.LogLevel.Trace)
+            .withUrl("/notificationHub") // Adjust the URL based on your setup
             .build();
-
 
         // Define a function to handle received notifications
         connection.on("receiveNotification", function (notification) {
@@ -171,7 +229,7 @@
             <div class="notification-content">
                 <p class="notification-sender">${notificationItem.Sender.FirstName} ${notificationItem.Sender.LastName}</p>
                 <p class="notification-subject">${notificationItem.NotificationSubject}</p>
-                <p class="notification-date">${formatNotificationDate(new Date(notificationItem.NotificationDate), "UTC")}</p>
+                <p class="notification-date">${formatNotificationDate(notificationItem.NotificationDate, "UTC")}</p>
             </div>
         </li>`;
 
@@ -181,6 +239,7 @@
             // Update the time display
             updateTimeDisplay();
         }
+
 
         // Handle click events on notification items
         $(document).on("click", ".notification-item", function () {
@@ -196,31 +255,57 @@
             window.location.href = `/Notifications/Details/${notificationId}`;
         });
 
-        // Function to update the time display
-        function updateTimeDisplay() {
-            $(".notification-date").each(function () {
-                var notificationDate = new Date($(this).data("notification-date"));
-                var timeZoneId = $(this).data("time-zone-id");
-                var formattedDate = formatNotificationDate(notificationDate, timeZoneId);
-                $(this).text(formattedDate);
-            });
-        }
+     
+    });
 
-        // Periodically update the time display (every minute in this example)
-        setInterval(updateTimeDisplay, 60000); // 60000 milliseconds = 1 minute
+    function searchNotifications() {
+        var searchTerm = $('#notificationSearch').val().toLowerCase();
 
-        // Function to format a date
-        function formatNotificationDate(date, timeZoneId) {
-            // Check if timeZoneId is provided and supported
-            if (timeZoneId && Intl.DateTimeFormat().resolvedOptions().timeZone === timeZoneId) {
-                return date.toLocaleString('en-US', { timeZone: timeZoneId });
+        // Hide the "Search results not found" message initially
+        $('.search-results-not-found').hide();
+
+        // Iterate through each notification item
+        $('#notificationList .notification-item').each(function () {
+            var sender = $(this).find('.notification-sender').text().toLowerCase();
+            var subject = $(this).find('.notification-subject').text().toLowerCase();
+            var date = $(this).find('.notification-date').text().toLowerCase();
+
+            // Check if the search term matches any of the notification details
+            if (sender.includes(searchTerm) || subject.includes(searchTerm) || date.includes(searchTerm)) {
+                $(this).show(); // Display the matching notification
             } else {
-                return date.toLocaleString(); // Use the default system timezone
+                $(this).hide(); // Hide the non-matching notification
             }
+        });
+
+        // Show "Search results not found" if no matching notifications are found
+        if ($('#notificationList .notification-item:visible').length === 0) {
+            $('.search-results-not-found').show();
         }
+    }
+
+    $(document).ready(function () {
+        // Existing JavaScript code remains unchanged
+
+        // Dynamic search bar functionality
+        $('#notificationSearch').on('input', searchNotifications);
     });
 </script>
 
+<script>
+    // Function to update the time display
+    function updateTimeDisplay() {
+        $(".notification-date").each(function () {
+            var notificationDate = new Date($(this).data("notification-date"));
+            var timeZoneId = $(this).data("time-zone-id");
+            var formattedDate = formatNotificationDate(notificationDate, timeZoneId); // Use consistent case
+            $(this).text(formattedDate);
+        });
+    }
+
+    // Periodically update the time display (every minute in this example)
+    setInterval(updateTimeDisplay, 60000); // 60000 milliseconds = 1 minute
+</script>
 
 
 @functions {
@@ -261,7 +346,7 @@
             var days = (int)timeDifference.TotalDays;
             return days <= 10
                 ? $"{days} day{(days == 1 ? "" : "s")} ago"
-                : notificationDate.ToString("MM/dd/yyyy");
+                : notificationDate.ToString("MMM dd...");
         }
     }
 }

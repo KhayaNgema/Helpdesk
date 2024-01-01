@@ -6,6 +6,10 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Helpdesk.Models;
 using Helpdesk;
+using Microsoft.AspNet.SignalR;
+using System.Data.Entity;
+using AttendanceManagement;
+using Microsoft.Owin.Builder;
 
 namespace Helpdesk
 {
@@ -18,9 +22,11 @@ namespace Helpdesk
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            // Move role creation logic here
+
             CreateRolesAndUsers();
         }
+
+
 
         private void CreateRolesAndUsers()
         {
