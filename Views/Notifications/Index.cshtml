@@ -5,11 +5,57 @@
 }
 
 <style>
+    .list-group-item {
+        border: none; /* Remove default list item border */
+    }
+
     .notification-content {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        width: 100%; /* Occupy the full width */
     }
+
+    .notification-sender {
+        flex: 0 0 180px; /* Set width for the sender */
+        overflow: hidden; /* Hide overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis for truncated text */
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        margin-right: 10px; /* Adjust spacing between sender and subject */
+    }
+
+    .notification-subject {
+        flex: 0 0 130px; /* Set width for the subject */
+        overflow: hidden; /* Hide overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis for truncated text */
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        margin-right: 50px; /* Adjust spacing between subject and body */
+    }
+
+    .notification-body {
+        flex: 0 0 680px; /* Set width for the body */
+        overflow: hidden; /* Hide overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis for truncated text */
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        margin-right: 15px; /* Adjust spacing between body and date */
+    }
+
+    .notification-date {
+        flex: 0 0 auto; /* Do not grow or shrink, and maintain initial size */
+        overflow: hidden; /* Hide overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis for truncated text */
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        margin-left: auto; /* Push date to the rightmost side */
+    }
+
+    /* Ensure text is always written from left to right */
+    .notification-content,
+    .notification-sender,
+    .notification-subject,
+    .notification-body,
+    .notification-date {
+        direction: ltr;
+    }
+
 
 
     .unread-notification {
@@ -52,6 +98,9 @@
     }
 
     .vertical-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 10px;
         margin-bottom: 10px;
         cursor: pointer;
@@ -60,8 +109,11 @@
         transition: background-color 0.3s ease;
         border-radius: 8px;
         position: relative;
+        width: 50px;
+        height: 50px;
         background-color: #030319; /* Button background color */
     }
+
 
         .vertical-button:hover {
             background-color: #e7eff0;
@@ -82,7 +134,6 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
             width: 80px; /* Adjusted width of the tooltip background */
-           
         }
 
         .vertical-button:hover::before {
@@ -101,14 +152,14 @@
 
     .search-container {
         position: fixed;
-        top: 50px; /* Adjust the top position to add more space between the fixed container and the top of the screen */
+        top: 55px; /* Adjust the top position to add more space between the fixed container and the top of the screen */
         left: 0;
         width: 100%;
         background-color: #EDFBFF;
-        padding: 8px;
+        padding: 10px;
         z-index: 1000;
         box-sizing: border-box;
-        padding: 20px;
+        padding: 25px;
     }
 
     #notificationSearch {
@@ -130,32 +181,31 @@
     .container {
         position: relative;
         z-index: 1;
+        border-radius: 30px;
         margin-top: 0px; /* Adjust the margin as needed */
-        padding-top: 22px; /* Adjust the padding as needed */
-    } 
+        padding-top: 28px; /* Adjust the padding as needed */
+    }
 
-        .search-results-not-found {
+    .search-results-not-found {
         color: #000000;
         display: none;
         position: fixed;
-        top:0%;
+        top: 0%;
         left: 50%;
         transform: translate(-50%, -50%);
         font-style: italic;
     }
-
-
 </style>
 
 <div class="container">
 
-    <div class="vertical-buttons">
-        <button class="vertical-button" data-tooltip="New" onclick="redirectTo('/Notifications/Create')"><i class="fas fa-plus"></i></button>
-        <button class="vertical-button" data-tooltip="Inbox" onclick="redirectTo('/YourControllerName/YourActionNameForInbox')"><i class="fas fa-inbox"></i></button>
-        <button class="vertical-button" data-tooltip="Sent" onclick="redirectTo('/YourControllerName/YourActionNameForSent')"><i class="fas fa-paper-plane"></i></button>
-        <button class="vertical-button" data-tooltip="Starred" onclick="redirectTo('/YourControllerName/YourActionNameForStarred')"><i class="fas fa-star"></i></button>
-        <button class="vertical-button" data-tooltip="Deleted" onclick="redirectTo('/YourControllerName/YourActionNameForDeleted')"><i class="fas fa-trash-alt"></i></button>
-    </div>
+    @*<div class="vertical-buttons">
+            <button class="vertical-button" data-tooltip="New" onclick="redirectTo('/Notifications/Create')"><i class="fas fa-plus"></i></button>
+            <button class="vertical-button" data-tooltip="Inbox" onclick="redirectTo('/Notifications/Index')"><i class="fas fa-inbox"></i></button>
+            <button class="vertical-button" data-tooltip="Sent" onclick="redirectTo('/YourControllerName/YourActionNameForSent')"><i class="fas fa-paper-plane"></i></button>
+            <button class="vertical-button" data-tooltip="Starred" onclick="redirectTo('/YourControllerName/YourActionNameForStarred')"><i class="fas fa-star"></i></button>
+            <button class="vertical-button" data-tooltip="Deleted" onclick="redirectTo('/YourControllerName/YourActionNameForDeleted')"><i class="fas fa-trash-alt"></i></button>
+        </*@
 
     <script>
         function redirectTo(url) {
@@ -180,6 +230,7 @@
                 <div class="notification-content">
                     <p class="notification-sender">@notification.Sender.FirstName @notification.Sender.LastName</p>
                     <p class="notification-subject">@notification.NotificationSubject</p>
+                    <p class="notification-body">@notification.NotificationBody</p>
                     <p class="notification-date" data-notification-date="@notification.NotificationDate" data-time-zone-id="UTC">
                         @FormatNotificationDate(notification.NotificationDate, "UTC")
                     </p>
@@ -190,28 +241,20 @@
 </div>
 
 
-
-<!-- Include jQuery and SignalR scripts if not already included -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.11/signalr.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        // Establish a connection to the SignalR hub
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/notificationHub") // Adjust the URL based on your setup
+            .withUrl("/NotificationHub")
             .build();
 
-        // Define a function to handle received notifications
         connection.on("receiveNotification", function (notification) {
-            // Handle the received notification here
             console.log("Received notification:", notification);
-
-            // Update UI or perform other actions as needed
             updateUIWithNotification(notification);
         });
 
-        // Start the SignalR connection
         connection.start()
             .then(function () {
                 console.log("SignalR connected");
@@ -221,27 +264,23 @@
             });
 
         function updateUIWithNotification(notificationItem) {
-            // Create HTML for the new notification
             var newNotificationHtml = `
-        <li class="list-group-item notification-item ${(notificationItem.IsRead) ? "" : "unread-notification"}"
-            data-notification-id="${notificationItem.NotificationId}"
-            data-is-read="${notificationItem.IsRead}">
-            <div class="notification-content">
-                <p class="notification-sender">${notificationItem.Sender.FirstName} ${notificationItem.Sender.LastName}</p>
-                <p class="notification-subject">${notificationItem.NotificationSubject}</p>
-                <p class="notification-date">${formatNotificationDate(notificationItem.NotificationDate, "UTC")}</p>
-            </div>
-        </li>`;
+            <li class="list-group-item notification-item ${(notificationItem.IsRead) ? "" : "unread-notification"}"
+                data-notification-id="${notificationItem.NotificationId}"
+                data-is-read="${notificationItem.IsRead}">
+                <div class="notification-content">
+                    <p class="notification-sender">${notificationItem.Sender.FirstName} ${notificationItem.Sender.LastName}</p>
+                    <p class="notification-subject">${notificationItem.NotificationSubject}</p>
+                    <p class="notification-body">${notificationItem.NotificationBody}</p>
+                    <p class="notification-date" data-notification-date="${notificationItem.NotificationDate}" data-time-zone-id="UTC">
+                        ${formatNotificationDate(notificationItem.NotificationDate, "UTC")}
+                    </p>
+                </div>
+            </li>`;
 
-            // Prepend the new notification to the list
             $("#notificationList").prepend(newNotificationHtml);
-
-            // Update the time display
-            updateTimeDisplay();
         }
 
-
-        // Handle click events on notification items
         $(document).on("click", ".notification-item", function () {
             const notificationId = $(this).data("notification-id");
             const isRead = $(this).data("is-read");
@@ -249,65 +288,37 @@
             if (!isRead) {
                 $(this).data("is-read", true);
                 $(this).removeClass("unread-notification");
-                // Perform other actions for marking the notification as read
             }
 
             window.location.href = `/Notifications/Details/${notificationId}`;
         });
 
-     
-    });
+        function searchNotifications() {
+            var searchTerm = $('#notificationSearch').val().toLowerCase();
+            $('.search-results-not-found').hide();
 
-    function searchNotifications() {
-        var searchTerm = $('#notificationSearch').val().toLowerCase();
+            $('#notificationList .notification-item').each(function () {
+                var sender = $(this).find('.notification-sender').text().toLowerCase();
+                var subject = $(this).find('.notification-subject').text().toLowerCase();
+                var date = $(this).find('.notification-date').text().toLowerCase();
 
-        // Hide the "Search results not found" message initially
-        $('.search-results-not-found').hide();
+                if (sender.includes(searchTerm) || subject.includes(searchTerm) || date.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
 
-        // Iterate through each notification item
-        $('#notificationList .notification-item').each(function () {
-            var sender = $(this).find('.notification-sender').text().toLowerCase();
-            var subject = $(this).find('.notification-subject').text().toLowerCase();
-            var date = $(this).find('.notification-date').text().toLowerCase();
-
-            // Check if the search term matches any of the notification details
-            if (sender.includes(searchTerm) || subject.includes(searchTerm) || date.includes(searchTerm)) {
-                $(this).show(); // Display the matching notification
-            } else {
-                $(this).hide(); // Hide the non-matching notification
+            if ($('#notificationList .notification-item:visible').length === 0) {
+                $('.search-results-not-found').show();
             }
-        });
-
-        // Show "Search results not found" if no matching notifications are found
-        if ($('#notificationList .notification-item:visible').length === 0) {
-            $('.search-results-not-found').show();
         }
-    }
 
-    $(document).ready(function () {
-        // Existing JavaScript code remains unchanged
-
-        // Dynamic search bar functionality
-        $('#notificationSearch').on('input', searchNotifications);
+        $(document).ready(function () {
+            $('#notificationSearch').on('input', searchNotifications);
+        });
     });
 </script>
-
-<script>
-    // Function to update the time display
-    function updateTimeDisplay() {
-        $(".notification-date").each(function () {
-            var notificationDate = new Date($(this).data("notification-date"));
-            var timeZoneId = $(this).data("time-zone-id");
-            var formattedDate = formatNotificationDate(notificationDate, timeZoneId); // Use consistent case
-            $(this).text(formattedDate);
-        });
-    }
-
-    // Periodically update the time display (every minute in this example)
-    setInterval(updateTimeDisplay, 60000); // 60000 milliseconds = 1 minute
-</script>
-
-
 @functions {
     public string FormatNotificationDate(DateTime notificationDate, string timeZoneId)
     {
@@ -315,7 +326,7 @@
         var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
         var timeDifference = now - notificationDate;
 
-        if (timeDifference.TotalSeconds <= 60) // Display "Just now" for the first 60 seconds
+        if (timeDifference.TotalSeconds < 60)
         {
             return "Just now";
         }
@@ -339,17 +350,18 @@
         }
         else if (timeDifference.TotalDays < 3)
         {
-            return notificationDate.ToString("MM/dd");
+            return $"{(int)timeDifference.TotalDays} day{(timeDifference.TotalDays == 1 ? "" : "s")} ago";
         }
         else
         {
-            var days = (int)timeDifference.TotalDays;
-            return days <= 10
-                ? $"{days} day{(days == 1 ? "" : "s")} ago"
-                : notificationDate.ToString("MMM dd...");
+            // Display the date in the format dd MMM yyyy for notifications older than 3 days
+            return notificationDate.ToString("dd MMM yyyy");
         }
     }
 }
+
+
+
 
 
 

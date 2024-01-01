@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity.EntityFramework;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -36,6 +37,12 @@ namespace Helpdesk.Models
 
         public bool IsNew { get; set; }
 
-        public string FullSenderName => $"{Sender.FirstName} {Sender.LastName}";
+        public string FullSenderName { get; set;  }
+
+        public string NotificationBody { get; set;}
+
+        [NotMapped]
+        public ICollection<ApplicationUser> RecipientsWithRole { get; set; }
+
     }
 }

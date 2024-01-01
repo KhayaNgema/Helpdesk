@@ -17,9 +17,17 @@ namespace Helpdesk.Controllers
         // GET: Notifications
         public ActionResult Index()
         {
+            var userId = User.Identity.GetUserId();
 
-            var notifications = db.Notifications.Include(n => n.Recipient).Include(n => n.Sender);
-            return View(notifications.ToList());
+            // Filter notifications where the recipient is the current user
+            var notifications = db.Notifications
+                .Include(n => n.Recipient)
+                .Include(n => n.Sender)
+                .Where(n => n.RecipientId == userId)
+                .OrderBy(n => n.NotificationId)
+                .ToList();
+
+            return View(notifications);
         }
 
         // GET: Notifications/Details/5
@@ -65,7 +73,7 @@ namespace Helpdesk.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "NotificationSubject, RecipientId")] Notification notification)
+        public ActionResult Create([Bind(Include = "NotificationSubject,NotificationBody, RecipientId")] Notification notification)
         {
             if (ModelState.IsValid)
             {

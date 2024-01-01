@@ -603,7 +603,7 @@ namespace Helpdesk.Controllers
                 var secondLineSupportUsers = GetUsersInRole("Second Line Support");
                 foreach (var user in secondLineSupportUsers)
                 {
-                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation", "You have a new incident that was escalated from first line support. Plese take neccessary actions before the SLA VAlue is reached.");
                 }
 
                 BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToFirstLineSupportWrapper(firstLineIncident));
@@ -673,7 +673,7 @@ namespace Helpdesk.Controllers
                 var thirdLineSupportUsers = GetUsersInRole("Third Line Support");
                 foreach (var user in thirdLineSupportUsers)
                 {
-                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation", "You have a new incident that was escalated from second line support. Plese take neccessary actions");
                 }
 
                 BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToSecondLineSupportWrapper(secondLineIncident));
@@ -743,7 +743,7 @@ namespace Helpdesk.Controllers
                 var activeManagerUsers = GetUsersInRole("Active Manager");
                 foreach (var user in activeManagerUsers)
                 {
-                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation");
+                    CreateNotification(User.Identity.GetUserId(), user.Id, "Incident Escalation", "You have a new incident that was escalated from third line support. Plese take neccessary actions");
                 }
 
                 BackgroundJob.Enqueue(() => backgroundJobs.SendEscalationNotificationToThirdLineSupportWrapper(thirdLineIncident));
@@ -778,7 +778,7 @@ namespace Helpdesk.Controllers
         }
 
 
-        private void CreateNotification(string senderId, string recipientId, string subject)
+        private void CreateNotification(string senderId, string recipientId, string subject, string body)
         {
 
             var recipientUser = db.Users.Find(recipientId);
@@ -794,6 +794,7 @@ namespace Helpdesk.Controllers
                 SenderId = senderId,
                 RecipientId = recipientId,
                 NotificationSubject = subject,
+                NotificationBody = body,
                 NotificationDate = DateTime.Now,
                 IsRead = false,
                 IsNew = true 

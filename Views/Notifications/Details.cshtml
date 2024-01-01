@@ -4,55 +4,80 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<style>
+    /* Add custom styles for the notification details page */
+    h2 {
+        color: #333;
+    }
 
-<div>
-    <h4>Notification</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Recipient.ClientName)
-        </dt>
+    .details-container {
+        width: 100%;
+        max-width: 1200px; /* Set a max-width if needed */
+        margin: 20px auto;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.Recipient.ClientName)
-        </dd>
+    .details-header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px 5px 0 0;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Sender.ClientName)
-        </dt>
+    .details-content {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 0 0 5px 5px;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.Sender.ClientName)
-        </dd>
+    .dl-horizontal dt {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.NotificationSubject)
-        </dt>
+    .dl-horizontal dd {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.NotificationSubject)
-        </dd>
+    .actions-container {
+        margin-top: 20px;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.NotificationDate)
-        </dt>
+    .btn {
+        margin-right: 10px;
+    }
+</style>
 
-        <dd>
-            @Html.DisplayFor(model => model.NotificationDate)
-        </dd>
+<h2 class="text-center">Notification Details</h2>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.IsRead)
-        </dt>
+<div class="details-container">
+    <div class="details-header">
+        <h4>Notification</h4>
+    </div>
+    <div class="details-content">
+        <dl class="dl-horizontal">
+            <dt>Sent to : </dt>
+            <dd>@Html.DisplayFor(model => model.Recipient.FirstName) @Html.DisplayFor(model => model.Recipient.LastName)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.IsRead)
-        </dd>
+            <dt>From : </dt>
+            <dd>@Html.DisplayFor(model => model.Sender.LastName) @Html.DisplayFor(model => model.Sender.LastName)</dd>
 
-    </dl>
+            <dt>@Html.DisplayNameFor(model => model.NotificationSubject)</dt>
+            <dd>@Html.DisplayFor(model => model.NotificationSubject)</dd>
+
+            <dt>@Html.DisplayNameFor(model => model.NotificationBody)</dt>
+            <dd>@Html.DisplayFor(model => model.NotificationBody)</dd>
+
+            <dt>@Html.DisplayNameFor(model => model.NotificationDate)</dt>
+            <dd>@Html.DisplayFor(model => model.NotificationDate)</dd>
+
+            <dt>@Html.DisplayNameFor(model => model.IsRead)</dt>
+            <dd>@Html.DisplayFor(model => model.IsRead)</dd>
+        </dl>
+    </div>
+    <div class="actions-container">
+        @Html.ActionLink("Edit", "Edit", new { id = Model.NotificationId }, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.NotificationId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
