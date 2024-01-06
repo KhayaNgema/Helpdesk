@@ -1,36 +1,131 @@
 ﻿@model IEnumerable<Helpdesk.Models.HardwareDescription>
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Hardware Descriptions Index";
 }
 
-<h2>Hardware Descriptions Index</h2>
+<style>
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-<p>
-    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
-</p>
+    .table-container {
+        margin: 0 auto; /* Center the table horizontally */
+        text-align: center; /* Center the table header */
+    }
 
-<div class="table-responsive">
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Hardware Description Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.HardwareDescriptionName)</td>
-                    <td>
-                        @Html.ActionLink("Edit", "Edit", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-primary btn-sm" }) |
-                        @Html.ActionLink("Details", "Details", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-info btn-sm" }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-danger btn-sm" })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    .table-responsive {
+        margin: 0 auto; /* Center the table horizontally */
+        border-radius: 10px; /* Rounded corners for the table */
+        overflow: hidden; /* Hide overflowing content */
+    }
+
+    table {
+        width: 100%;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        background-color: #030319;
+        color: white;
+    }
+
+    .search-box-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .search-box {
+        margin-right: 10px;
+    }
+
+    .search-input {
+        padding: 5px;
+        width: 300px;
+    }
+
+    .no-results-message {
+        text-align: center;
+        color: red;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Add some styles for the action buttons */
+    .btn-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+        .btn-actions a {
+            margin: 0 5px;
+        }
+</style>
+
+<h3>Hardware Descriptions Index</h3>
+
+<div class="search-box-container">
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+    </div>
 </div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-bordered" id="hardwareDescriptionTable">
+            <thead>
+                <tr>
+                    <th>Hardware Description Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-search="@item.HardwareDescriptionName">@Html.DisplayFor(modelItem => item.HardwareDescriptionName)</td>
+                        <td class="btn-actions">
+                            @Html.ActionLink("Edit", "Edit", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-primary btn-sm" }) |
+                            @Html.ActionLink("Details", "Details", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-info btn-sm" }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.HardwareDescriptionId }, new { @class = "btn btn-danger btn-sm" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div id="noResultsMessage" class="no-results-message" style="display:none;">Search results not found.</div>
+    </div>
+</div>
+
+<script>
+    // Add JavaScript for dynamic search
+    document.getElementById("searchInput").addEventListener("input", function () {
+        var searchValue = this.value.toLowerCase();
+        var rows = document.querySelectorAll("#hardwareDescriptionTable tbody tr");
+        var noResultsMessage = document.getElementById("noResultsMessage");
+
+        var foundResults = false;
+
+        rows.forEach(function (row) {
+            var shouldHide = true;
+            row.querySelectorAll("td[data-search]").forEach(function (cell) {
+                if (cell.getAttribute("data-search").toLowerCase().indexOf(searchValue) > -1) {
+                    shouldHide = false;
+                    foundResults = true;
+                }
+            });
+
+            row.style.display = shouldHide ? "none" : "";
+        });
+
+        noResultsMessage.style.display = foundResults ? "none" : "block";
+    });
+</script>

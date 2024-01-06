@@ -7,47 +7,147 @@
     ViewBag.Title = "XETEmployees";
 }
 
-<h2>XETEmployees</h2>
+<style>
+    /* Add some styles for better appearance */
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-<div class="table-responsive">
-    <table class="table table-bordered" style="width: 100%; max-width: 100%;">
-        <thead style="background-color: #f2f2f2;">
-            <tr>
-                <th style="width: 5%;">Title</th>
-                <th style="width: 15%;">First Name</th>
-                <th style="width: 15%;">Last Name</th>
-                <th style="width: 10%;">Cellphone</th>
-                <th style="width: 15%;">Email Address</th>
-                <th style="width: 15%;">Designation</th>
-                <th style="width: 10%;">Role</th>
-                <th style="width: 20%;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.Title)</td>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.FirstName)</td>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.LastName)</td>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.CellNumber)</td>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.Email)</td>
-                    <td style="white-space: normal;">@Html.DisplayFor(modelItem => item.Designations.DesignationName)</td>
-                    <td style="white-space: normal;">
-                        @{
-                            var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
-                            var userRoles = userManager.GetRoles(item.Id);
-                            var role = userRoles.Any() ? userRoles.First() : "No Role";
-                        }
-                        @role
-                    </td>
-                    <td>
-                        @Html.ActionLink("Edit", "EditXETEmployee", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" }) |
-                        @Html.ActionLink("Details", "Details", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" }) |
-                        @Html.ActionLink("Delete", "DeleteXETEmployee", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    .table-container {
+        margin: 0 auto; /* Center the table horizontally */
+        text-align: center; /* Center the table header */
+    }
+
+    .table-responsive {
+        margin: 0 auto; /* Center the table horizontally */
+        border-radius: 10px; /* Rounded corners for the table */
+        overflow: hidden; /* Hide overflowing content */
+    }
+
+    table {
+        width: 150%;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        color: white; /* Set text color in th to white */
+    }
+
+    .search-box-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .search-box {
+        margin-right: 10px;
+    }
+
+    .search-input {
+        padding: 5px;
+        width: 300px;
+    }
+
+    .no-results-message {
+        text-align: center;
+        color: red;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Add some styles for the action buttons */
+    .btn-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+        .btn-actions a {
+            margin: 0 5px;
+        }
+</style>
+
+<h3>XET Employees</h3>
+
+<div class="search-box-container">
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+    </div>
 </div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-bordered" id="employeeTable">
+            <thead style="background-color: #030319;">
+                <tr>
+                    <th>Title</th>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Cellphone</th>
+                    <th>Email address</th>
+                    <th>Designation</th>
+                    <th>Role</th>
+                    <th>Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.CellNumber)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Designations.DesignationName)</td>
+                        <td>
+                            @{
+                                var userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+                                var userRoles = userManager.GetRoles(item.Id);
+                                var role = userRoles.Any() ? userRoles.First() : "No Role";
+                            }
+                            @role
+                        </td>
+                        <td class="btn-actions">
+                            @Html.ActionLink("Edit", "EditXETEmployee", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" }) |
+                            @Html.ActionLink("Details", "Details", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" }) |
+                            @Html.ActionLink("Delete", "DeleteXETEmployee", "Account", new { id = item.Id }, new { @class = "btn btn-secondary btn-sm" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div id="noResultsMessage" class="no-results-message" style="display:none;">Search results not found.</div>
+    </div>
+</div>
+
+<script>
+    // Add JavaScript for dynamic search
+    document.getElementById("searchInput").addEventListener("input", function () {
+        var searchValue = this.value.toLowerCase();
+        var rows = document.querySelectorAll("#employeeTable tbody tr");
+        var noResultsMessage = document.getElementById("noResultsMessage");
+
+        var foundResults = false;
+
+        rows.forEach(function (row) {
+            var shouldHide = true;
+            row.querySelectorAll("td").forEach(function (cell) {
+                if (cell.textContent.toLowerCase().indexOf(searchValue) > -1) {
+                    shouldHide = false;
+                    foundResults = true;
+                }
+            });
+
+            row.style.display = shouldHide ? "none" : "";
+        });
+
+        noResultsMessage.style.display = foundResults ? "none" : "block";
+    });
+</script>

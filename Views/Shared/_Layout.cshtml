@@ -24,7 +24,7 @@
         body {
             padding-top: 50px;
             margin: 0;
-            background: #EDFBFF;
+            overflow: auto;
         }
 
         #wrapper {
@@ -49,8 +49,8 @@
             scrollbar-color: transparent transparent;
             border-top-right-radius: 0px; /* Add border radius to the top-right corner */
             border-bottom-right-radius: 0px; /* Add border radius to the bottom-right corner */
-            border-top-left-radius: 5px; /* Add border radius to the top-right corner */
-            border-bottom-left-radius: 5px; /* Add border radius to the bottom-right corner */
+            border-top-left-radius: 0px; /* Add border radius to the top-right corner */
+            border-bottom-left-radius: 0px; /* Add border radius to the bottom-right corner */
         }
 
 
@@ -66,8 +66,9 @@
         }
 
             #page-content-wrapper.shifted {
-                margin-left: 0px; /* Adjust the margin-left value to the width of your sidebar */
-                padding-left: 240px; /* Add some padding on the left side */
+                margin-left: 0px; 
+                padding-left: 240px; 
+                 padding-left: 240px; 
             }
 
         #wrapper.toggled #page-content-wrapper {
@@ -104,7 +105,7 @@
 
         .main-content {
             margin-top: 0;
-            padding: 20px;
+            padding: 0;
         }
 
         .sub-nav {
@@ -560,43 +561,44 @@
 
     <div id="page-content-wrapper" class="main-content">
         <div class="container-fluid">
-            @if (User.Identity.IsAuthenticated && ((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.NameIdentifier)?.Value != null)
+            @if (User.Identity.IsAuthenticated)
             {
-                <div class="top-navbar" style="margin-right: 20px;">
-                    <a href="#menu-toggle" id="menu-toggle" style="font-size: 26px; color: black; text-decoration: none;">&#9776;</a>
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var nameIdentifierClaim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier);
+                if (nameIdentifierClaim != null && nameIdentifierClaim.Value != null)
+                {
+                    <div class="top-navbar" style="margin-right: 20px;">
+                        <a href="#menu-toggle" id="menu-toggle" style="font-size: 26px; color: black; text-decoration: none;">&#9776;</a>
 
+                        <div class="user-profile">
+                            @{
+                                var userRoles = claimsIdentity.Claims
+                                                    .Where(c => c.Type == ClaimTypes.Role)
+                                                    .Select(c => c.Value)
+                                                    .ToList();
+                                var userRole = userRoles.FirstOrDefault();
+                            }
 
-                    <div class="user-profile">
-                        @{
-                            var userRoles = ((ClaimsIdentity)User.Identity).Claims
-                                                .Where(c => c.Type == ClaimTypes.Role)
-                                                .Select(c => c.Value)
-                                                .ToList();
-                            var userRole = userRoles.FirstOrDefault();
-                        }
-
-                        <span>@($"{GetUserFullName()} ({userRole ?? "Other Role"})")</span>
+                            <span>@(GetUserFullName() + " (" + (userRole ?? "Other Role") + ")")</span>
+                        </div>
                     </div>
-                </div>
+                }
             }
             else
             {
                 <div class="top-navbar">
                     <a href="#menu-toggle" id="menu-toggle" style="font-size: 26px; color: black; text-decoration: none;">&#9776;</a>
-
                 </div>
-
             }
+
             <div class="container body-content">
                 <div class="container">
                     @RenderBody()
                 </div>
             </div>
-
-
         </div>
     </div>
-    </div>
+
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

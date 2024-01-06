@@ -37,20 +37,46 @@ namespace Helpdesk.Controllers
         }
 
         // GET: ClientProducts/Create
-        public ActionResult Create()
+        public ActionResult Create(string clientName)
         {
-            ViewBag.OnboardingId = new SelectList(db.ApprovedRequests, "OnboardingId", "ClientName");
+            // Check if the client name is provided
+            if (string.IsNullOrEmpty(clientName))
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set the selected value for the OnboardingId dropdown list
+            ViewBag.OnboardingId = new SelectList(db.ApprovedRequests
+                                                    .Where(ar => ar.ClientName == clientName)
+                                                    .ToList(), "OnboardingId", "ClientName");
+
+            // Set the client name in the ViewBag to use it in the form
+            ViewBag.ClientName = clientName;
+
+            // You can modify the other ViewBag properties based on your requirements
             ViewBag.ProductId = new SelectList(db.Products, "ProductId", "ProductName");
+
             return View();
         }
 
+
         // POST: ClientProducts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ClientProductId,OnboardingId,ProductId")] ClientProduct clientProduct)
+        public ActionResult Create([Bind(Include = "ClientProductId,OnboardingId,ProductId")] ClientProduct clientProduct, string clientName)
         {
+            // Check if the client name is provided
+            if (string.IsNullOrEmpty(clientName))
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Set the client name property in the model
+            clientProduct.OnboardingId = db.ApprovedRequests
+                                            .Where(ar => ar.ClientName == clientName)
+                                            .Select(ar => ar.OnboardingId)
+                                            .FirstOrDefault();
+
             if (ModelState.IsValid)
             {
                 db.ClientProducts.Add(clientProduct);
@@ -60,8 +86,10 @@ namespace Helpdesk.Controllers
 
             ViewBag.OnboardingId = new SelectList(db.ApprovedRequests, "OnboardingId", "ClientName", clientProduct.OnboardingId);
             ViewBag.ProductId = new SelectList(db.Products, "ProductId", "ProductName", clientProduct.ProductId);
+
             return View(clientProduct);
         }
+
 
         // GET: ClientProducts/Edit/5
         public ActionResult Edit(int? id)
