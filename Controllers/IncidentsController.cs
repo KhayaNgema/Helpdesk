@@ -178,11 +178,10 @@ namespace Helpdesk.Controllers
                     LoggedDate = DateTime.Now,
                 };
 
+                HandleFileUpload(newIncident, incidentViewModel.IssueFiles);
 
-
-
-                HandleImageUpload(newIncident, incidentViewModel.IssueFiles);
-
+                db.Incidents.Add(newIncident);
+                db.SaveChanges();
 
                 // Determine the appropriate table based on subcategory priority and SLA
                 SubCategory selectedSubcategory = db.SubCategories.Find(incidentViewModel.SubCategoryId);
@@ -213,6 +212,9 @@ namespace Helpdesk.Controllers
                     DesignationId = currentUser.DesignationId,
                     LoggedDate = DateTime.Now,
                 };
+
+                HandleFileUpload(newIncident, incidentViewModel.IssueFiles);
+
                 SecondLineSupport secondLineSupport = new SecondLineSupport
                 {
                  
@@ -236,6 +238,9 @@ namespace Helpdesk.Controllers
                     DesignationId = currentUser.DesignationId,
                     LoggedDate = DateTime.Now,
                 };
+
+                HandleFileUpload(newIncident, incidentViewModel.IssueFiles);
+
                 ThirdLineSupport thirdLineSupport = new ThirdLineSupport
                 {
                    
@@ -260,6 +265,8 @@ namespace Helpdesk.Controllers
                     LoggedDate = DateTime.Now,
                 };
 
+                HandleFileUpload(newIncident, incidentViewModel.IssueFiles);
+
                 ActiveManager activeManager = new ActiveManager
                 {
                    
@@ -283,7 +290,9 @@ namespace Helpdesk.Controllers
                     DesignationId = currentUser.DesignationId,
                     LoggedDate = DateTime.Now,
                 };
-             
+
+                HandleFileUpload(newIncident, incidentViewModel.IssueFiles);
+
 
                 // Set the IncidentId for support entities
                 firstLineSupport.IncidentId = newIncident.IncidentId;
@@ -307,6 +316,7 @@ namespace Helpdesk.Controllers
                         break;
                 }
 
+          
                 db.SaveChanges();  
 
 
@@ -437,27 +447,41 @@ namespace Helpdesk.Controllers
             base.Dispose(disposing);
         }
 
-        private void HandleImageUpload(Incident newIncident, HttpPostedFileBase issueFiles)
+        private void HandleFileUpload(Incident newIncident, HttpPostedFileBase issueFile)
         {
-            if (issueFiles != null && issueFiles.ContentLength > 0)
+            if (issueFile != null && issueFile.ContentLength > 0)
             {
                 try
                 {
-                    // Ensure the necessary using directive for 'Path'
-                    string fileName = Path.GetFileName(issueFiles.FileName);
-                    string path = Path.Combine(Server.MapPath("~/UploadedFiles/"), fileName);
-                    issueFiles.SaveAs(path);
+                    string fileName = Path.GetFileName(issueFile.FileName);
+                    string extension = Path.GetExtension(fileName).ToLower();
 
-                    // Assuming you want to map 'IssueFiles' from view model to 'IssueFile' in the model
-                    newIncident.IssueFile = "~/UploadedFiles/" + fileName;
+                    // Specify the allowed file extensions
+                    string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp4", ".avi", ".wmv", ".wav", ".mp3", ".pdf" };
+
+                    if (allowedExtensions.Contains(extension))
+                    {
+                        // Ensure the necessary using directive for 'Path'
+                        string path = Path.Combine(Server.MapPath("~/Images/"), fileName);
+                        issueFile.SaveAs(path);
+
+                        // Map 'IssueFile' from the view model to 'IssueFile' in the model
+                        newIncident.IssueFile = "~/Files/" + fileName;
+                    }
+                    else
+                    {
+                        // Handle unsupported file types
+                        Console.WriteLine("Error: Unsupported file type.");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // Log the exc eption or handle it appropriately
+                    // Log the exception or handle it appropriately
                     Console.WriteLine($"Error uploading file: {ex.Message}");
                 }
             }
         }
+
 
         private IEnumerable<SubCategory> GetSubCategoriesForCategory(int categoryId)
         {

@@ -4,175 +4,248 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<style>
+    .card {
+        height: 550px;
+        max-height: 550px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
 
-<div>
-    <h4>ThirdLineSupport</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ApprovedRequest.ClientName)
-        </dt>
+    .card-header {
+        background-color: #030319;
+        color: white;
+        text-align: center;
+        margin-top: 0;
+        padding: 15px 0 10px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.ApprovedRequest.ClientName)
-        </dd>
+    .card-body {
+        overflow-y: auto;
+        max-height: calc(100% - 60px);
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Category.CategoryName)
-        </dt>
+    .product-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        margin-left: 20px;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.Category.CategoryName)
-        </dd>
+    .product-list-item {
+        display: flex;
+        align-items: baseline; /* Add this line to align items on the baseline */
+        margin-bottom: 5px;
+        padding: 8px;
+        transition: background-color 0.3s;
+        cursor: pointer;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.DatabaseType.DatabaseName)
-        </dt>
+        .product-list-item:hover {
+            background-color: #f0f0f0;
+        }
 
-        <dd>
-            @Html.DisplayFor(model => model.DatabaseType.DatabaseName)
-        </dd>
+    .action-column {
+        display: flex;
+        visibility: hidden;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Designation.DesignationName)
-        </dt>
+    .product-list-item:hover .action-column {
+        visibility: visible;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.Designation.DesignationName)
-        </dd>
+    .action-buttons a {
+        text-decoration: none;
+        color: #000;
+        margin-left: 10px;
+        padding-right: 10px;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.EnvironmentType.EnvironmentName)
-        </dt>
+    .card-content {
+        overflow-y: auto;
+        flex: 1;
+    }
 
-        <dd>
-            @Html.DisplayFor(model => model.EnvironmentType.EnvironmentName)
-        </dd>
+    .label-bold {
+        font-weight: bold;
+    }
 
-        <dt>
-            @Html.DisplayNameFor(model => model.HardwareDescription.HardwareDescriptionName)
-        </dt>
+    .text-wrap {
+        white-space: pre-wrap;
+    }
+</style>
 
-        <dd>
-            @Html.DisplayFor(model => model.HardwareDescription.HardwareDescriptionName)
-        </dd>
+<br />
+<div class="row">
+    <div class="col-md-6">
+        <p>
+            <a href="@Url.Action("Index")" class="btn btn-white">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </p>
+    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Products.ProductName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Products.ProductName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.SubCategories.faultCode)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.SubCategories.faultCode)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.VirtualizedPlatforms.VirtualizedPlatformName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.VirtualizedPlatforms.VirtualizedPlatformName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Subject)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Subject)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.IssueFile)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.IssueFile)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ProductVersion)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ProductVersion)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CallersName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.CallersName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CallersSurname)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.CallersSurname)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.EmailAddress)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.EmailAddress)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CellNumber)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.CellNumber)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.LoggedDate)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.LoggedDate)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.TicketStatus)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.TicketStatus)
-        </dd>
-
-    </dl>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.IncidentId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Incident</h4>
+            </div>
+            <div class="card-body">
+                <ul class="product-list">
+                    <li class="product-list-item">
+                        <span class="label-bold">Logged Date:  </span>&nbsp;
+                        <span class="text-wrap">
+                            @{
+                                var loggedDate = Model.LoggedDate;
+                                <span>@loggedDate.ToString("dd MMM yyyy, HH:mm")</span>
+                            }
+                        </span>
+                    </li>
+
+                    <li class="product-list-item">
+                        <span class="label-bold">Client Name: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.ApprovedRequest.ClientName) (@Html.DisplayFor(model => model.ApprovedRequest.ClientAbbr))</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Category: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.Category.CategoryName)</span>
+
+                    <li class="product-list-item">
+                        <span class="label-bold">Products: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.Products.ProductName) (@Html.DisplayFor(model => model.Products.ProductKey))</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">SubCategory: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.SubCategories.SubCategoryName) (@Html.DisplayFor(model => model.SubCategories.faultCode))</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Subject: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.Subject)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Description: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.Description)</span>
+                    </li>
+
+                    <li class="product-list-item">
+                        <span class="label-bold">Ticket Status: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.TicketStatus)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Priority: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.SubCategories.Priority.PriorityName)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Additional Details</h4>
+            </div>
+            <div class="card-body">
+                <ul class="product-list">
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Database Type: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.DatabaseType.DatabaseName)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Designation: </span> &nbsp;<span class="text-wrap">@Html.DisplayFor(model => model.Designation.DesignationName)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Environment Type: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.EnvironmentType.EnvironmentName)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Hardware Description: </span>&nbsp;
+                        @{
+                            var hardwareDescription = Model.HardwareDescription?.HardwareDescriptionName;
+                            <span class="text-wrap">@(!string.IsNullOrWhiteSpace(hardwareDescription) ? hardwareDescription : "N/A")</span>
+                        }
+
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Issue File: </span>&nbsp;
+                        <span class="text-wrap">
+                            @{
+                                var issueFile = Model.IssueFile;
+                                if (!string.IsNullOrWhiteSpace(issueFile))
+                                {
+                                    <a href="javascript:void(0);" onclick="openFilePreview('@Url.Content(issueFile)')">View File</a>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            }
+                        </span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Product Version: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.ProductVersion)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Caller's Name: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.CallersName)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Caller's Surname: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.CallersSurname)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Email Address: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.EmailAddress)</span>
+                    </li>
+                    <li class="product-list-item">
+                        <span class="label-bold">Cell Number: </span>&nbsp; <span class="text-wrap">@Html.DisplayFor(model => model.CellNumber)</span>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+
+<script>
+    function openFilePreview(url) {
+        var fileType = getFileExtension(url);
+
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+            // Display image preview in a modal or new window
+            window.open(url, '_blank');
+        } else if (fileType === 'pdf') {
+            // Open PDF in a new window
+            var pdfWindow = window.open('', '_blank');
+            pdfWindow.document.write('<iframe src="' + url + '" width="100%" height="100%" style="border: none;"></iframe>');
+        } else if (['mp3', 'wav', 'ogg'].includes(fileType)) {
+            // Use HTML5 audio tag for audio files
+            openMediaPreview(url, 'Audio Preview');
+        } else if (['mp4', 'webm'].includes(fileType)) {
+            // Use HTML5 video tag for video files
+            openMediaPreview(url, 'Video Preview');
+        } else {
+            // For other file types, open in a new tab
+            window.open(url, '_blank');
+        }
+    }
+
+    function openMediaPreview(url, title) {
+        var mediaElement = document.createElement('video');
+        if (title === 'Audio Preview') {
+            mediaElement = document.createElement('audio');
+        }
+
+        mediaElement.src = url;
+        mediaElement.controls = true;
+        mediaElement.autoplay = true;
+
+        var mediaWindow = window.open('', '_blank');
+        mediaWindow.document.write("<html><head><title>" + title + "</title></head><body style='margin:0;'></body></html>");
+        mediaWindow.document.body.appendChild(mediaElement);
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+    }
+</script>
+
+
+
+

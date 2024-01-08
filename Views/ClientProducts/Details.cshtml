@@ -4,7 +4,13 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<div class="col-md-6">
+    <p>
+        <a href="@Url.Action("Index")" class="btn btn-white">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </p>
+</div>
 
 <div>
     <h4>ClientProduct</h4>
@@ -28,7 +34,3 @@
 
     </dl>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ClientProductId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>

@@ -153,7 +153,7 @@
         {
             <div class="card">
                 <div class="card-header">
-                    @group.Key <!-- Client Name as header -->
+                    @group.Key
                 </div>
                 <div class="card-content">
                     <ul class="product-list">
@@ -176,7 +176,9 @@
                         }
                     </ul>
                 </div>
-                <button class="add-new-button" onclick="window.location.href='@Url.Action("Create", new { clientName = group.Key })'">Add New Product</button>
+                <button class="add-new-button" onclick="window.location.href='@Url.Action("Create", new { clientName = group.Key })'">
+                    <i class="fas fa-plus"></i> New Product
+                </button>
             </div>
         }
     </div>

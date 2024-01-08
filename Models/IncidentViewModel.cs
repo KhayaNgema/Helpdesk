@@ -60,6 +60,7 @@ namespace Helpdesk.Models
 
         public string CreatedById { get; set; }
 
+        public DateTime DueDate { get; set; }
         public string GenerateReferenceNumber(ApprovedRequest client, Product product)
         {
             // Get the client abbreviation, product key, current year, month, and day

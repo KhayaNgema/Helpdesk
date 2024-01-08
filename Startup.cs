@@ -38,7 +38,7 @@ namespace AttendanceManagement
             Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage("Data Source=(LocalDb)\\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\\aspnet-Helpdesk-20240101013948.mdf;Initial Catalog=aspnet-Helpdesk-20240101013948;Integrated Security=True"); // Change this line
             app.UseHangfireDashboard();
             app.UseHangfireServer();
-            RecurringJob.AddOrUpdate("auto-escalation-job", () => backgroundJobs.AutoEscalateIncidents(), "0 * * * *");
+            RecurringJob.AddOrUpdate("auto-escalation-job", () => backgroundJobs.AutoEscalateIncidents(), "*/2 * * * *");
         }
 
         private void ConfigureAdditionalAppSettings(IAppBuilder app)

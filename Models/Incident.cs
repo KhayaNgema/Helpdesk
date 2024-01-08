@@ -95,6 +95,11 @@ namespace Helpdesk.Models
         [Display(Name = "Status")]
         public TicketStatus TicketStatus { get; set; }
 
+
+        [NotMapped]
+        [Display(Name = "Due Date")]
+        public DateTime DueDate { get; set; }
+
         public string GenerateReferenceNumber(ApprovedRequest client, Product product)
         {
             // Get the client abbreviation, product key, current year, month, and day

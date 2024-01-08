@@ -283,6 +283,14 @@
     <Compile Include="Migrations\202401011838031_AddBody.designer.cs">
       <DependentUpon>202401011838031_AddBody.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202401071340182_AddDueDate.cs" />
+    <Compile Include="Migrations\202401071340182_AddDueDate.designer.cs">
+      <DependentUpon>202401071340182_AddDueDate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202401071356486_NotMapDueDate.cs" />
+    <Compile Include="Migrations\202401071356486_NotMapDueDate.designer.cs">
+      <DependentUpon>202401071356486_NotMapDueDate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CategorySubcategory.cs" />
@@ -565,6 +573,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202401011838031_AddBody.resx">
       <DependentUpon>202401011838031_AddBody.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202401071340182_AddDueDate.resx">
+      <DependentUpon>202401071340182_AddDueDate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202401071356486_NotMapDueDate.resx">
+      <DependentUpon>202401071356486_NotMapDueDate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

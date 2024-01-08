@@ -82,7 +82,8 @@
             <thead style="background-color: #030319;">
                 <tr>
                     <th>Category</th>
-                    <th>Subcategory Fault Code</th>
+                    <th>Subcategory</th>
+                    <th>SLA Value</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -91,7 +92,8 @@
                 {
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.Categories.CategoryName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.SubCategories.faultCode)</td>
+                        <td>@Html.DisplayFor(modelItem => item.SubCategories.SubCategoryName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.SubCategories.SLAValue.SLAValueName)</td>
                         <td class="btn-actions">
                             @Html.ActionLink("Edit", "Edit", new { id = item.CategorySubCategoryId }, new { @class = "btn btn-primary btn-sm" }) |
                             @Html.ActionLink("Details", "Details", new { id = item.CategorySubCategoryId }, new { @class = "btn btn-info btn-sm" }) |

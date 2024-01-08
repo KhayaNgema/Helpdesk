@@ -1,7 +1,18 @@
-﻿@model IEnumerable<Helpdesk.Models.FirstLineSupport>
+﻿@model IEnumerable<Helpdesk.Models.SecondLineSupport>
 
 @{
     ViewBag.Title = "First Line Support Index";
+    var orderedModel = Model.OrderByDescending(item => item.LoggedDate);
+
+    Func<DateTime, string, DateTime> CalculateDueDate = (loggedDate, slaValue) =>
+    {
+        if (int.TryParse(slaValue, out int hours))
+        {
+            return loggedDate.AddHours(hours);
+        }
+
+        return loggedDate;
+    };
 }
 
 <style>
@@ -11,14 +22,15 @@
     }
 
     .table-container {
-        margin: 0 auto; /* Center the table horizontally */
-        text-align: center; /* Center the table header */
+        margin: 0 auto;
+        text-align: center;
+        padding-top: 55px;
     }
 
     .table-responsive {
-        margin: 0 auto; /* Center the table horizontally */
-        border-radius: 10px; /* Rounded corners for the table */
-        overflow: hidden; /* Hide overflowing content */
+        margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
     table {
@@ -58,7 +70,6 @@
         margin-top: 10px;
     }
 
-    /* Add some styles for the action buttons */
     .btn-actions {
         display: flex;
         justify-content: center;
@@ -73,46 +84,151 @@
         text-decoration: none;
         transition: background-color 0.3s;
         display: flex;
-        align-items: center; /* Center the icon and text vertically */
+        align-items: center;
     }
 
         .btn-details:hover {
-            background-color: #021217;
+            background-color: #39a7d7;
+            color: white;
         }
 
-    /* Icon styling */
     .details-icon {
         margin-right: 5px;
-        color: white; /* Set the icon color */
+        color: white;
     }
 
-    /* Priority styles */
+    .priority-cell {
+        display: inline-block;
+        width: 75px; /* Set your preferred width */
+        height: 38px; /* Set your preferred height */
+        border-radius: 5px; /* Adjusted border-radius for a rounder appearance */
+        background-color: transparent;
+        border: 1px solid #ccc;
+        margin: 5px;
+        align-items: center;
+        padding-top: 10px;
+    }
+
+
     .priority-urgent {
         background-color: red !important;
         color: white;
     }
 
     .priority-high {
-        background-color: orange !important;
+        background-color: yellow !important;
     }
 
     .priority-medium {
-        background-color: green !important;
+        background-color: forestgreen !important;
         color: white;
     }
 
     .priority-low {
-        background-color: lightgrey !important;
+        background-color: lightblue !important;
+    }
+
+    .time-cell {
+        text-align: center;
+    }
+
+    .subcategory-cell {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    .caller-info-cell {
+        text-align: left;
+        font-size: smaller;
+        color: black;
+        display: flex;
+        align-items: center;
+        padding-top: 5px;
+        margin-right: 10px;
+    }
+
+    .caller-info-icon {
+        margin-right: 5px;
+        color: black;
+    }
+
+    .date-time-column {
+        text-align: left;
+    }
+
+    .date-time-cell {
+        color: black;
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+    }
+
+    .date-time-icon {
+        margin-right: 5px;
+        color: black;
+    }
+
+    body {
+        background-attachment: fixed;
+        background-color: /* your preferred color */;
+    }
+
+    .header-container {
+        position: fixed;
+        width: 100%;
+        top: 57px;
+        z-index: 1000;
+        background-color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+
+    .btn-create {
+        margin-left: 10px;
+        padding-bottom: 10px;
+    }
+
+    .search-box {
+        margin-left: 10px;
+        padding-right: 193px;
+    }
+
+    .search-input {
+        padding: 5px;
+        width: 300px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    tbody tr:hover {
+        background-color: #f0f0f0;
     }
 </style>
 
-<h3>First Line Support Index</h3>
+<br />
+<div class="header-container">
+    <span style="margin-right: auto; margin-left:0; color: #030319; font-size: 24px; font-weight: bold;">INCIDENTS</span>
 
-<div class="search-box-container">
-    <div class="search-box">
+    <div class="btn-create" style="order: 1; margin-left: 10px;">
+        <a href="@Url.Action("Create", "Incidents")" class="btn btn-details btn-md" style="text-decoration: none; color: white;">
+            <i class="fas fa-plus details-icon"></i> Log New Incident
+        </a>
+    </div>
+
+    <div class="search-box" style="order: 2;">
         <input type="text" id="searchInput" class="search-input" placeholder="Search...">
     </div>
 </div>
+
+
+
+
 
 <div class="table-container">
     <div class="table-responsive">
@@ -120,24 +236,118 @@
             <thead style="background-color: #030319; color: white;">
                 <tr>
                     <th>Ticket No.</th>
-                    <th>Sub-category</th>
-                    <th>Caller's Name</th>
+                    <th>Subject</th>
                     <th>Date Logged</th>
+                    <th>SLA Expires In</th>
                     <th>Priority</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in orderedModel)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.ReferenceNumber)</td>
-                        <td>@Html.DisplayFor(modelItem => item.SubCategories.SubCategoryName)</td>
-                        <td>@Html.DisplayFor(modelItem => item.CallersName) @Html.DisplayFor(modelItem => item.CallersSurname)</td>
-                        <td>@Html.DisplayFor(modelItem => item.LoggedDate)</td>
-                        <td class="priority-@(item.SubCategories.Priority.PriorityName.ToLower())">
-                            @Html.DisplayFor(modelItem => item.SubCategories.Priority.PriorityName)
+                        <td>
+                            <strong>#</strong> @Html.DisplayFor(modelItem => item.ReferenceNumber)
+                        </td>
+                        <td class="subcategory-cell">
+                            <strong>@Html.DisplayFor(modelItem => item.Subject)</strong>
+                            <br />
+                            <span class="caller-info-cell" style="margin-right: 10px;">
+                                <i class="fas fa-user details-icon caller-info-icon"></i>
+                                Logged by: @Html.DisplayFor(modelItem => item.CallersName) @Html.DisplayFor(modelItem => item.CallersSurname) ...
+                                <i class="fas fa-star details-icon caller-info-icon" style="color: lightgrey;"></i>
+                                <i style="color: #808080;">@Html.DisplayFor(modelItem => item.Category.CategoryName)</i>
+                            </span>
+                        </td>
+                        <td class="date-time-column">
+                            <span class="date-time-cell">
+                                <i class="fas fa-calendar date-time-icon"></i>
+                                @item.LoggedDate.ToString("dd MMM yyyy")
+                            </span>
+                            <span class="date-time-cell">
+                                <i class="fas fa-clock date-time-icon"></i>
+                                @item.LoggedDate.ToString("HH:mm")
+                            </span>
+                        </td>
+                        <td>
+                            @{
+                                var dueDate = CalculateDueDate(item.LoggedDate, item.SubCategories.SLAValue.SLAValueName);
+                                var timeLeft = dueDate - DateTime.Now;
+
+                                if (timeLeft > TimeSpan.Zero)
+                                {
+                                    <span id="dueDateCounter_@item.IncidentId">
+                                        <i class="fas fa-clock"></i>
+                                        @{
+                                            var days = timeLeft.Days;
+                                            var hours = timeLeft.Hours;
+                                            var minutes = timeLeft.Minutes;
+                                            var seconds = timeLeft.Seconds;
+
+                                            if (hours >= 24)
+                                            {
+                                                @days.ToString() @Html.Raw(days > 1 ? " days " : " day")
+                                                @hours.ToString() @Html.Raw(hours > 1 ? " hours" : " hour")
+                                            }
+                                            else if (hours >= 1 && hours < 24)
+                                            {
+                                                @hours.ToString() @Html.Raw(hours > 1 ? " hours " : " hour")
+                                                @minutes.ToString() @Html.Raw(minutes > 1 ? " minutes" : " minute")
+                                            }
+                                            else if (minutes >= 1 && minutes <= 60)
+                                            {
+                                                @minutes.ToString() @Html.Raw(minutes > 1 ? " minutes" : " minute")
+                                            }
+                                            else if (seconds >= 1 && seconds < 60)
+                                            {
+                                                @seconds.ToString() @Html.Raw(seconds > 1 ? " seconds" : " second")
+                                            }
+                                            else
+                                            {
+                                                @days.ToString() @Html.Raw(days > 1 ? " days" : " day")
+                                            }
+                                        }
+                                    </span>
+                                    <input type="hidden" id="dueDate_@item.IncidentId" value="@dueDate.ToString("o")" />
+
+                                    <script>
+                                        setInterval(function () {
+                                            var currentTime = new Date();
+                                            var dueDate = new Date(document.getElementById("dueDate_@item.IncidentId").value);
+                                            var updatedTimeLeft = dueDate - currentTime;
+
+                                            if (updatedTimeLeft > 0) {
+                                                var updatedDays = Math.floor(updatedTimeLeft / (1000 * 60 * 60 * 24));
+                                                var updatedHours = Math.floor((updatedTimeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                var updatedMinutes = Math.floor((updatedTimeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                                                var updatedSeconds = Math.floor((updatedTimeLeft % (1000 * 60)) / 1000);
+
+                                                document.getElementById("dueDateCounter_@item.IncidentId").innerHTML =
+                                                    '<i class="fas fa-clock" style="color: lightgrey; margin-right: 5px;"></i>' +
+                                                    (updatedDays > 1 ? updatedDays + " days " : "") +
+                                                    (updatedHours > 1 ? updatedHours + " hours" : (updatedHours == 1 ? "1 hour" : "")) +
+                                                    (updatedDays > 1 || updatedHours > 1 ? " " : "") +
+                                                    (updatedMinutes > 1 ? updatedMinutes + " minutes" : (updatedMinutes == 1 ? "1 minute" : ""));
+                                            } else {
+                                                document.getElementById("dueDateCounter_@item.IncidentId").innerHTML = "Time expired";
+                                            }
+                                        }, 1000); // Update every second
+                                    </script>
+                                }
+                                else
+                                {
+                                    <span style="color: red;">
+                                        <i class="fas fa-clock" style="color: red; margin-right: 5px;"></i>SLA Value has expired
+                                    </span>
+                                }
+                            }
+                        </td>
+                        <td class="priority-cell priority-@(item.SubCategories.Priority.PriorityName.ToLower())">
+                            <span class="priority-badge">
+                                @Html.DisplayFor(modelItem => item.SubCategories.Priority.PriorityName)
+                            </span>
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.TicketStatus)</td>
                         <td class="btn-actions">
@@ -149,18 +359,17 @@
                 }
             </tbody>
         </table>
-
         <div id="noResultsMessage" class="no-results-message" style="display:none;">Search results not found.</div>
     </div>
 </div>
 
+<!-- ... (unchanged code) ... -->
+
 <script>
-    // Add your JavaScript for dynamic search here
     document.getElementById("searchInput").addEventListener("input", function () {
         var searchValue = this.value.toLowerCase();
         var rows = document.querySelectorAll("#firstLineSupportTable tbody tr");
         var noResultsMessage = document.getElementById("noResultsMessage");
-
         var foundResults = false;
 
         rows.forEach(function (row) {
@@ -176,5 +385,13 @@
         });
 
         noResultsMessage.style.display = foundResults ? "none" : "block";
+
+        document.querySelectorAll("#firstLineSupportTable tbody tr").forEach(function (row) {
+            var loggedDate = new Date(row.querySelector(".date-time-cell .date-time-icon:first-child").nextSibling.nodeValue.trim());
+            var dueDateCell = row.querySelector("td:nth-child(4)");
+
+            var calculatedDueDate = CalculateDueDate(new Date(), loggedDate);
+            dueDateCell.textContent = calculatedDueDate.toLocaleString();
+        });
     });
 </script>
